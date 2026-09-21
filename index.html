@@ -211,7 +211,7 @@
       <div class="small">
         This timer synchronises with your Ade Focus Timer
         backend, so timers started from your GPT can also
-        appear here.
+        appear here automatically.
       </div>
 
     </div>
@@ -221,17 +221,17 @@
 
 <script>
 
-/* ==========================================
+/* =====================================================
    CONFIGURATION
-   ========================================== */
+   ===================================================== */
 
 const API_URL =
   'https://script.google.com/macros/s/AKfycbxJMMURG_zF__mEpvKLzTibUvELUgfO_8LyDaTMJKRVDkTsQtpHkt8hnXq_f8BLNpS4/exec';
 
 
-/* ==========================================
+/* =====================================================
    STATE
-   ========================================== */
+   ===================================================== */
 
 let currentTimer = null;
 
@@ -244,9 +244,9 @@ let backendPolling = null;
 let displayInterval = null;
 
 
-/* ==========================================
+/* =====================================================
    JSONP API
-   ========================================== */
+   ===================================================== */
 
 function apiRequest(params) {
 
@@ -274,7 +274,9 @@ function apiRequest(params) {
         cleanup();
 
         reject(
-          new Error('Timer request timed out')
+          new Error(
+            'Timer request timed out'
+          )
         );
 
       }, 10000);
@@ -297,7 +299,11 @@ function apiRequest(params) {
       delete window[callbackName];
 
       if (script.parentNode) {
-        script.parentNode.removeChild(script);
+
+        script.parentNode.removeChild(
+          script
+        );
+
       }
 
     }
@@ -311,7 +317,9 @@ function apiRequest(params) {
         cleanup();
 
         reject(
-          new Error('Timer request failed')
+          new Error(
+            'Timer request failed'
+          )
         );
 
       };
@@ -323,24 +331,30 @@ function apiRequest(params) {
       query.toString();
 
 
-    document.body.appendChild(script);
+    document.body.appendChild(
+      script
+    );
 
   });
 
 }
 
 
-/* ==========================================
+/* =====================================================
    START TIMER
-   ========================================== */
+   ===================================================== */
 
 async function startTimer() {
 
   const durationInput =
-    document.getElementById('duration');
+    document.getElementById(
+      'duration'
+    );
 
   const minutes =
-    Number(durationInput.value);
+    Number(
+      durationInput.value
+    );
 
 
   if (
@@ -358,12 +372,16 @@ async function startTimer() {
 
 
   const durationSeconds =
-    Math.round(minutes * 60);
+    Math.round(
+      minutes * 60
+    );
 
 
   try {
 
-    setStatus('Starting timer...');
+    setStatus(
+      'Starting timer...'
+    );
 
 
     const result =
@@ -392,44 +410,54 @@ async function startTimer() {
     }
 
 
-    completionHandled = false;
+    completionHandled =
+      false;
+
 
     currentLabel =
       result.label ||
       'Focus Block';
 
 
-    updateDisplay(result);
+    updateDisplay(
+      result
+    );
+
 
     startDisplayClock();
 
-    startBackendPolling();
+    ensureBackendPolling();
 
   }
 
 
   catch (error) {
 
+    console.error(
+      error
+    );
+
+
     setStatus(
       'Unable to connect to timer.'
     );
-
-    console.error(error);
 
   }
 
 }
 
 
-/* ==========================================
+/* =====================================================
    PAUSE TIMER
-   ========================================== */
+   ===================================================== */
 
 async function pauseTimer() {
 
   try {
 
-    setStatus('Pausing...');
+    setStatus(
+      'Pausing...'
+    );
 
 
     const result =
@@ -450,37 +478,48 @@ async function pauseTimer() {
     }
 
 
-    updateDisplay(result);
+    updateDisplay(
+      result
+    );
+
 
     stopDisplayClock();
 
-    setStatus('⏸ Timer paused.');
+
+    setStatus(
+      '⏸ Timer paused.'
+    );
 
   }
 
 
   catch (error) {
 
+    console.error(
+      error
+    );
+
+
     setStatus(
       'Unable to pause timer.'
     );
-
-    console.error(error);
 
   }
 
 }
 
 
-/* ==========================================
+/* =====================================================
    RESUME TIMER
-   ========================================== */
+   ===================================================== */
 
 async function resumeTimer() {
 
   try {
 
-    setStatus('Resuming...');
+    setStatus(
+      'Resuming...'
+    );
 
 
     const result =
@@ -501,33 +540,41 @@ async function resumeTimer() {
     }
 
 
-    completionHandled = false;
+    completionHandled =
+      false;
 
-    updateDisplay(result);
+
+    updateDisplay(
+      result
+    );
+
 
     startDisplayClock();
 
-    startBackendPolling();
+    ensureBackendPolling();
 
   }
 
 
   catch (error) {
 
+    console.error(
+      error
+    );
+
+
     setStatus(
       'Unable to resume timer.'
     );
-
-    console.error(error);
 
   }
 
 }
 
 
-/* ==========================================
+/* =====================================================
    STOP TIMER
-   ========================================== */
+   ===================================================== */
 
 async function stopTimer() {
 
@@ -551,21 +598,25 @@ async function stopTimer() {
     }
 
 
-    stopBackendPolling();
-
     stopDisplayClock();
 
 
-    currentTimer = null;
+    currentTimer =
+      null;
 
-    currentLabel = '';
 
-    completionHandled = false;
+    currentLabel =
+      '';
+
+
+    completionHandled =
+      false;
 
 
     document.getElementById(
       'timer'
-    ).textContent = '25:00';
+    ).textContent =
+      '25:00';
 
 
     document.getElementById(
@@ -578,27 +629,32 @@ async function stopTimer() {
       'Ade Focus Timer';
 
 
-    setStatus('Timer stopped.');
+    setStatus(
+      'Timer stopped.'
+    );
 
   }
 
 
   catch (error) {
 
+    console.error(
+      error
+    );
+
+
     setStatus(
       'Unable to stop timer.'
     );
-
-    console.error(error);
 
   }
 
 }
 
 
-/* ==========================================
+/* =====================================================
    GET STATUS
-   ========================================== */
+   ===================================================== */
 
 async function getStatus() {
 
@@ -617,75 +673,9 @@ async function getStatus() {
     }
 
 
-    if (
-      result.active &&
-      !result.paused
-    ) {
-
-      currentLabel =
-        result.label ||
-        'Focus Block';
-
-
-      updateDisplay(result);
-
-      startDisplayClock();
-
-      startBackendPolling();
-
-      return;
-
-    }
-
-
-    if (
-      result.active &&
-      result.paused
-    ) {
-
-      updateDisplay(result);
-
-      stopDisplayClock();
-
-      stopBackendPolling();
-
-      return;
-
-    }
-
-
-    if (
-      !result.active &&
-      result.completed
-    ) {
-
-      if (!completionHandled) {
-
-        completionHandled = true;
-
-        finishTimer(
-          true,
-          result.label ||
-          currentLabel ||
-          'Focus Block'
-        );
-
-      }
-
-      return;
-
-    }
-
-
-    if (!result.active) {
-
-      stopDisplayClock();
-
-      stopBackendPolling();
-
-      updateIdleState();
-
-    }
+    processTimerState(
+      result
+    );
 
   }
 
@@ -702,11 +692,140 @@ async function getStatus() {
 }
 
 
-/* ==========================================
-   UPDATE DISPLAY FROM BACKEND
-   ========================================== */
+/* =====================================================
+   PROCESS TIMER STATE
+   ===================================================== */
 
-function updateDisplay(state) {
+function processTimerState(
+  result
+) {
+
+  /*
+   * ACTIVE TIMER
+   */
+
+  if (
+    result.active &&
+    !result.paused
+  ) {
+
+    completionHandled =
+      false;
+
+
+    currentLabel =
+      result.label ||
+      'Focus Block';
+
+
+    currentTimer =
+      result;
+
+
+    document.getElementById(
+      'timerLabel'
+    ).textContent =
+      currentLabel;
+
+
+    startDisplayClock();
+
+    return;
+
+  }
+
+
+  /*
+   * PAUSED TIMER
+   */
+
+  if (
+    result.active &&
+    result.paused
+  ) {
+
+    currentTimer =
+      result;
+
+
+    currentLabel =
+      result.label ||
+      currentLabel ||
+      'Focus Block';
+
+
+    updateDisplay(
+      result
+    );
+
+
+    stopDisplayClock();
+
+    return;
+
+  }
+
+
+  /*
+   * COMPLETED TIMER
+   */
+
+  if (
+    !result.active &&
+    result.completed
+  ) {
+
+    if (
+      !completionHandled
+    ) {
+
+      completionHandled =
+        true;
+
+
+      finishTimer(
+        true,
+        result.label ||
+        currentLabel ||
+        'Focus Block'
+      );
+
+    }
+
+    return;
+
+  }
+
+
+  /*
+   * NO TIMER
+   */
+
+  if (
+    !result.active
+  ) {
+
+    currentTimer =
+      null;
+
+
+    stopDisplayClock();
+
+
+    updateIdleState();
+
+  }
+
+}
+
+
+/* =====================================================
+   UPDATE DISPLAY
+   ===================================================== */
+
+function updateDisplay(
+  state
+) {
 
   currentTimer =
     state;
@@ -725,47 +844,12 @@ function updateDisplay(state) {
 
 
   /*
-   * For an active timer we use ends_at
-   * as the authoritative time source.
+   * Active timer
    */
 
   if (
     state.active &&
     !state.paused &&
-    state.ends_at
-  ) {
-
-    currentTimer.ends_at =
-      state.ends_at;
-
-  }
-
-
-  /*
-   * For a paused timer we use the stored
-   * remaining_seconds value.
-   */
-
-  if (state.paused) {
-
-    renderTime(
-      Number(
-        state.remaining_seconds || 0
-      )
-    );
-
-
-    setStatus(
-      '⏸ Timer paused'
-    );
-
-    return;
-
-  }
-
-
-  if (
-    state.active &&
     state.ends_at
   ) {
 
@@ -775,14 +859,39 @@ function updateDisplay(state) {
       '⏱ Timer running'
     );
 
+    return;
+
+  }
+
+
+  /*
+   * Paused timer
+   */
+
+  if (
+    state.paused
+  ) {
+
+    renderTime(
+      Number(
+        state.remaining_seconds ||
+        0
+      )
+    );
+
+
+    setStatus(
+      '⏸ Timer paused'
+    );
+
   }
 
 }
 
 
-/* ==========================================
+/* =====================================================
    LOCAL DISPLAY CLOCK
-   ========================================== */
+   ===================================================== */
 
 function startDisplayClock() {
 
@@ -791,10 +900,6 @@ function startDisplayClock() {
 
   updateDisplayFromEndTime();
 
-
-  /*
-   * Update the visible countdown every second.
-   */
 
   displayInterval =
     setInterval(
@@ -805,28 +910,32 @@ function startDisplayClock() {
 }
 
 
-/* ==========================================
+/* =====================================================
    STOP LOCAL DISPLAY CLOCK
-   ========================================== */
+   ===================================================== */
 
 function stopDisplayClock() {
 
-  if (displayInterval) {
+  if (
+    displayInterval
+  ) {
 
     clearInterval(
       displayInterval
     );
 
-    displayInterval = null;
+
+    displayInterval =
+      null;
 
   }
 
 }
 
 
-/* ==========================================
-   UPDATE FROM END TIME
-   ========================================== */
+/* =====================================================
+   UPDATE DISPLAY FROM END TIME
+   ===================================================== */
 
 function updateDisplayFromEndTime() {
 
@@ -861,10 +970,8 @@ function updateDisplayFromEndTime() {
 
 
   /*
-   * Local countdown reached zero.
-   *
-   * We don't immediately assume completion
-   * until we check the backend.
+   * The local display has reached zero.
+   * Ask the backend for confirmation.
    */
 
   if (
@@ -879,16 +986,20 @@ function updateDisplayFromEndTime() {
 }
 
 
-/* ==========================================
+/* =====================================================
    RENDER TIME
-   ========================================== */
+   ===================================================== */
 
-function renderTime(seconds) {
+function renderTime(
+  seconds
+) {
 
   seconds =
     Math.max(
       0,
-      Math.ceil(seconds)
+      Math.ceil(
+        seconds
+      )
     );
 
 
@@ -903,11 +1014,19 @@ function renderTime(seconds) {
 
 
   const formatted =
-    String(minutes).padStart(2, '0') +
+    String(
+      minutes
+    ).padStart(
+      2,
+      '0'
+    ) +
     ':' +
     String(
       remainingSeconds
-    ).padStart(2, '0');
+    ).padStart(
+      2,
+      '0'
+    );
 
 
   document.getElementById(
@@ -923,23 +1042,30 @@ function renderTime(seconds) {
 }
 
 
-/* ==========================================
+/* =====================================================
    BACKEND POLLING
-   ========================================== */
+   ===================================================== */
 
-function startBackendPolling() {
+function ensureBackendPolling() {
 
-  if (backendPolling) {
+  /*
+   * IMPORTANT:
+   *
+   * Polling continues even when there
+   * is currently NO active timer.
+   *
+   * This allows the Netlify page to
+   * detect timers started from GPT.
+   */
+
+  if (
+    backendPolling
+  ) {
 
     return;
 
   }
 
-
-  /*
-   * Backend synchronisation every 5 seconds.
-   * The visible countdown itself runs every second.
-   */
 
   backendPolling =
     setInterval(
@@ -950,28 +1076,28 @@ function startBackendPolling() {
 }
 
 
-/* ==========================================
+/* =====================================================
    STOP BACKEND POLLING
-   ========================================== */
+   ===================================================== */
 
 function stopBackendPolling() {
 
-  if (backendPolling) {
+  /*
+   * We intentionally do not stop
+   * polling when the timer is idle.
+   *
+   * The page needs to remain aware
+   * of timers started externally.
+   */
 
-    clearInterval(
-      backendPolling
-    );
-
-    backendPolling = null;
-
-  }
+  return;
 
 }
 
 
-/* ==========================================
+/* =====================================================
    CHECK TIMER
-   ========================================== */
+   ===================================================== */
 
 async function checkTimer() {
 
@@ -983,121 +1109,18 @@ async function checkTimer() {
       });
 
 
-    if (!result.ok) {
-
-      return;
-
-    }
-
-
-    /*
-     * Active timer.
-     */
-
     if (
-      result.active &&
-      !result.paused
+      !result.ok
     ) {
 
-      currentLabel =
-        result.label ||
-        currentLabel ||
-        'Focus Block';
-
-
-      /*
-       * Refresh the authoritative end time.
-       */
-
-      currentTimer =
-        result;
-
-
-      currentTimer.ends_at =
-        result.ends_at;
-
-
-      document.getElementById(
-        'timerLabel'
-      ).textContent =
-        currentLabel;
-
-
-      updateDisplayFromEndTime();
-
       return;
 
     }
 
 
-    /*
-     * Paused timer.
-     */
-
-    if (
-      result.active &&
-      result.paused
-    ) {
-
-      currentTimer =
-        result;
-
-
-      currentLabel =
-        result.label ||
-        currentLabel ||
-        'Focus Block';
-
-
-      updateDisplay(result);
-
-      stopDisplayClock();
-
-      return;
-
-    }
-
-
-    /*
-     * Completed timer.
-     */
-
-    if (
-      !result.active &&
-      result.completed
-    ) {
-
-      if (!completionHandled) {
-
-        completionHandled = true;
-
-        finishTimer(
-          true,
-          result.label ||
-          currentLabel ||
-          'Focus Block'
-        );
-
-      }
-
-      return;
-
-    }
-
-
-    /*
-     * No timer.
-     */
-
-    if (!result.active) {
-
-      stopDisplayClock();
-
-      stopBackendPolling();
-
-      updateIdleState();
-
-    }
+    processTimerState(
+      result
+    );
 
   }
 
@@ -1114,14 +1137,11 @@ async function checkTimer() {
 }
 
 
-/* ==========================================
+/* =====================================================
    IDLE STATE
-   ========================================== */
+   ===================================================== */
 
 function updateIdleState() {
-
-  currentTimer = null;
-
 
   document.getElementById(
     'timerLabel'
@@ -1137,12 +1157,30 @@ function updateIdleState() {
   document.title =
     'Ade Focus Timer';
 
+
+  /*
+   * Keep the timer display at zero
+   * when an external timer has just
+   * completed.
+   */
+
+  if (
+    !currentTimer
+  ) {
+
+    document.getElementById(
+      'timer'
+    ).textContent =
+      '25:00';
+
+  }
+
 }
 
 
-/* ==========================================
+/* =====================================================
    TIMER COMPLETION
-   ========================================== */
+   ===================================================== */
 
 function finishTimer(
   notify = true,
@@ -1151,10 +1189,14 @@ function finishTimer(
 
   stopDisplayClock();
 
-  stopBackendPolling();
+
+  currentTimer =
+    null;
 
 
-  renderTime(0);
+  renderTime(
+    0
+  );
 
 
   document.getElementById(
@@ -1169,7 +1211,7 @@ function finishTimer(
 
 
   /*
-   * Gentle three-note chime.
+   * Gentle completion chime.
    */
 
   beep();
@@ -1179,7 +1221,9 @@ function finishTimer(
    * Browser notification.
    */
 
-  if (notify) {
+  if (
+    notify
+  ) {
 
     showNotification(
       label
@@ -1189,7 +1233,8 @@ function finishTimer(
 
 
   /*
-   * Clear the timer on the backend.
+   * Clear completed timer
+   * from the backend.
    */
 
   apiRequest({
@@ -1205,9 +1250,9 @@ function finishTimer(
 }
 
 
-/* ==========================================
+/* =====================================================
    GENTLE COMPLETION CHIME
-   ========================================== */
+   ===================================================== */
 
 function beep() {
 
@@ -1218,7 +1263,9 @@ function beep() {
       window.webkitAudioContext;
 
 
-    if (!AudioContext) {
+    if (
+      !AudioContext
+    ) {
 
       return;
 
@@ -1301,7 +1348,8 @@ function beep() {
 
         gain.gain.linearRampToValueAtTime(
           0.12,
-          startTime + 0.04
+          startTime +
+          0.04
         );
 
 
@@ -1350,9 +1398,9 @@ function beep() {
 }
 
 
-/* ==========================================
+/* =====================================================
    ENABLE NOTIFICATIONS
-   ========================================== */
+   ===================================================== */
 
 async function enableNotifications() {
 
@@ -1411,6 +1459,7 @@ async function enableNotifications() {
       error
     );
 
+
     setStatus(
       'Unable to enable notifications.'
     );
@@ -1420,9 +1469,9 @@ async function enableNotifications() {
 }
 
 
-/* ==========================================
+/* =====================================================
    SHOW COMPLETION NOTIFICATION
-   ========================================== */
+   ===================================================== */
 
 function showNotification(
   label
@@ -1452,12 +1501,14 @@ function showNotification(
     new Notification(
       '🎉 Focus Block Complete',
       {
+
         body:
           label +
           ' has finished. Time to review your progress or take a short break.',
 
         tag:
           'ade-focus-timer'
+
       }
     );
 
@@ -1476,9 +1527,9 @@ function showNotification(
 }
 
 
-/* ==========================================
+/* =====================================================
    STATUS HELPER
-   ========================================== */
+   ===================================================== */
 
 function setStatus(
   message
@@ -1492,13 +1543,29 @@ function setStatus(
 }
 
 
-/* ==========================================
+/* =====================================================
    INITIAL LOAD
-   ========================================== */
+   ===================================================== */
 
 window.addEventListener(
   'load',
   () => {
+
+    /*
+     * Start continuous backend polling
+     * immediately.
+     *
+     * This is what allows the page to
+     * detect timers started by GPT.
+     */
+
+    ensureBackendPolling();
+
+
+    /*
+     * Check immediately rather than
+     * waiting five seconds.
+     */
 
     getStatus();
 
