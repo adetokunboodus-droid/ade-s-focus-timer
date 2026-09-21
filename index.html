@@ -1,0 +1,796 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Ade Focus Timer</title>
+
+<style>
+body{
+  margin:0;
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:24px;
+  font-family:Arial,sans-serif;
+  background:#f5f5f5;
+  color:#222
+}
+
+.container{
+  width:100%;
+  max-width:620px;
+  background:#fff;
+  padding:36px;
+  border-radius:18px;
+  box-shadow:0 4px 24px rgba(0,0,0,.08);
+  text-align:center
+}
+
+h1{
+  margin:0 0 10px;
+  font-size:30px
+}
+
+#label{
+  font-size:22px;
+  font-weight:600;
+  margin:22px 0 8px
+}
+
+#timer{
+  font-size:clamp(64px,14vw,96px);
+  font-weight:700;
+  letter-spacing:2px;
+  margin:20px 0;
+  line-height:1;
+  font-variant-numeric:tabular-nums
+}
+
+#status{
+  min-height:24px;
+  margin:12px 0 26px;
+  color:#666
+}
+
+.error{
+  color:#a00!important
+}
+
+.notification-box{
+  margin:20px 0 28px;
+  padding:16px;
+  border-radius:12px;
+  background:#f0f0f0
+}
+
+#notificationStatus{
+  margin-top:8px;
+  font-size:14px;
+  color:#666
+}
+
+input{
+  width:100px;
+  font-size:18px;
+  padding:10px;
+  text-align:center;
+  border:1px solid #ccc;
+  border-radius:7px
+}
+
+button{
+  font-size:17px;
+  padding:12px 22px;
+  margin:8px 5px;
+  cursor:pointer;
+  border:0;
+  border-radius:8px
+}
+
+button:disabled{
+  opacity:.55;
+  cursor:not-allowed
+}
+
+.primary{
+  background:#222;
+  color:#fff
+}
+
+.secondary{
+  background:#e5e5e5;
+  color:#222
+}
+
+.notification-button{
+  background:#fff;
+  color:#222
+}
+
+.complete #timer{
+  animation:pulse .8s ease-in-out 3
+}
+
+@keyframes pulse{
+  50%{transform:scale(1.05)}
+}
+</style>
+</head>
+
+<body>
+
+<main class="container">
+
+<h1>⏱ Ade Focus Timer</h1>
+
+<div id="label">Ready</div>
+
+<div id="timer">00:00</div>
+
+<div id="status">
+  No timer running.
+</div>
+
+<div class="notification-box">
+
+  <button
+    id="notificationButton"
+    class="notification-button">
+    🔔 Enable Notifications
+  </button>
+
+  <div id="notificationStatus">
+    Checking notification permission…
+  </div>
+
+</div>
+
+<div>
+  <input
+    id="minutes"
+    type="number"
+    min="1"
+    max="1440"
+    value="25">
+  <span>minutes</span>
+</div>
+
+<div>
+
+  <button
+    id="startButton"
+    class="primary">
+    ▶ Start
+  </button>
+
+  <button
+    id="pauseButton"
+    class="secondary"
+    hidden>
+    ⏸ Pause
+  </button>
+
+  <button
+    id="resumeButton"
+    class="primary"
+    hidden>
+    ▶ Resume
+  </button>
+
+  <button
+    id="stopButton"
+    class="secondary">
+    ■ Stop
+  </button>
+
+</div>
+
+</main>
+
+<script>
+
+const API_URL =
+'https://script.google.com/macros/s/AKfycbxJMMURG_zF__mEpvKLzTibUvELUgfO_8LyDaTMJKRVDkTsQtpHkt8hnXq_f8BLNpS4/exec';
+
+let endTime=null;
+let pausedRemaining=0;
+let currentLabel='Focus Block';
+let currentPaused=false;
+let displayInterval=null;
+let completionHandled=false;
+let requestCounter=0;
+
+const $=id=>document.getElementById(id);
+
+function status(text,error=false){
+  $('status').textContent=text;
+  $('status').classList.toggle('error',error);
+}
+
+function notifStatus(){
+
+  const s=$('notificationStatus');
+  const b=$('notificationButton');
+
+  if(!('Notification' in window)){
+    s.textContent='Browser notifications are not supported.';
+    b.disabled=true;
+    return;
+  }
+
+  if(Notification.permission==='granted'){
+    s.textContent='🔔 Notifications are ON';
+    b.textContent='🔔 Notifications Enabled';
+    return;
+  }
+
+  if(Notification.permission==='denied'){
+    s.textContent='🔕 Notifications are blocked. Allow them in Chrome site settings.';
+    return;
+  }
+
+  s.textContent='Notifications not enabled';
+}
+
+async function enableNotifications(){
+
+  if(!('Notification' in window)) return;
+
+  try{
+
+    const permission=
+      await Notification.requestPermission();
+
+    notifStatus();
+
+    if(permission==='granted'){
+
+      new Notification(
+        'Ade Focus Timer',
+        {
+          body:'Notifications are now enabled.'
+        }
+      );
+
+    }
+
+  }catch(e){
+
+    status(
+      'Could not enable notifications.',
+      true
+    );
+
+  }
+}
+
+function notify(label){
+
+  if(
+    'Notification' in window &&
+    Notification.permission==='granted'
+  ){
+
+    try{
+
+      new Notification(
+        '🔔 Focus block complete',
+        {
+          body:label+' has finished.',
+          requireInteraction:true
+        }
+      );
+
+    }catch(e){}
+
+  }
+}
+
+function beep(){
+
+  try{
+
+    const A=
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+    if(!A) return;
+
+    const c=new A;
+    const o=c.createOscillator();
+    const g=c.createGain();
+
+    o.connect(g);
+    g.connect(c.destination);
+
+    o.frequency.value=800;
+    g.gain.value=.2;
+
+    o.start();
+
+    setTimeout(()=>{
+      o.stop();
+      c.close();
+    },500);
+
+  }catch(e){}
+
+}
+
+function jsonp(params){
+
+  return new Promise((resolve,reject)=>{
+
+    const n=
+      'timerCallback_' +
+      Date.now() +
+      '_' +
+      (++requestCounter);
+
+    const s=
+      document.createElement('script');
+
+    const q=
+      new URLSearchParams({
+        ...params,
+        api:'1',
+        callback:n
+      });
+
+    let done=false;
+
+    const finish=fn=>{
+
+      if(done) return;
+
+      done=true;
+
+      clearTimeout(to);
+
+      delete window[n];
+
+      s.remove();
+
+      fn();
+
+    };
+
+    const to=setTimeout(()=>{
+
+      finish(()=>
+        reject(
+          new Error(
+            'Timer service timed out.'
+          )
+        )
+      );
+
+    },10000);
+
+    window[n]=data=>
+      finish(()=>
+        resolve(data)
+      );
+
+    s.onerror=()=>
+      finish(()=>
+        reject(
+          new Error(
+            'Could not connect to timer service.'
+          )
+        )
+      );
+
+    s.src=
+      API_URL +
+      '?' +
+      q.toString();
+
+    document.body.appendChild(s);
+
+  });
+
+}
+
+async function call(action,duration,label){
+
+  const p={action};
+
+  if(duration!=null)
+    p.duration_seconds=String(duration);
+
+  if(label!=null)
+    p.label=label;
+
+  return jsonp(p);
+}
+
+function fmt(n){
+
+  n=Math.max(
+    0,
+    Math.floor(Number(n)||0)
+  );
+
+  return(
+    String(Math.floor(n/60)).padStart(2,'0')+
+    ':'+
+    String(n%60).padStart(2,'0')
+  );
+
+}
+
+function buttons(){
+
+  $('startButton').hidden=
+    endTime!==null ||
+    currentPaused;
+
+  $('pauseButton').hidden=
+    endTime===null ||
+    currentPaused;
+
+  $('resumeButton').hidden=
+    !currentPaused;
+
+}
+
+function show(n){
+  $('timer').textContent=fmt(n);
+}
+
+function stopLoop(){
+
+  if(displayInterval){
+
+    clearInterval(displayInterval);
+    displayInterval=null;
+
+  }
+
+}
+
+function display(){
+
+  if(
+    endTime===null ||
+    currentPaused
+  ) return;
+
+  const n=Math.max(
+    0,
+    Math.ceil(
+      (endTime-Date.now())/1000
+    )
+  );
+
+  show(n);
+
+  document.title=
+    fmt(n)+' — '+currentLabel;
+
+  if(n<=0)
+    finish(false,currentLabel);
+
+}
+
+function startLoop(){
+
+  stopLoop();
+
+  display();
+
+  displayInterval=
+    setInterval(display,250);
+
+}
+
+function apply(state){
+
+  if(!state || !state.ok){
+
+    status(
+      state && state.error
+        ? state.error
+        : 'Timer service error.',
+      true
+    );
+
+    return;
+
+  }
+
+  if(state.completed){
+
+    finish(
+      true,
+      state.label||currentLabel
+    );
+
+    return;
+
+  }
+
+  if(!state.active){
+
+    if(!completionHandled)
+      ready();
+
+    return;
+
+  }
+
+  currentLabel=
+    state.label||'Focus Block';
+
+  $('label').textContent=
+    currentLabel;
+
+  currentPaused=
+    state.paused===true;
+
+  if(currentPaused){
+
+    endTime=null;
+
+    pausedRemaining=
+      Number(state.remaining_seconds)||0;
+
+    stopLoop();
+
+    show(pausedRemaining);
+
+    status('⏸ Timer paused');
+
+  }else{
+
+    endTime=
+      Date.parse(state.ends_at);
+
+    pausedRemaining=0;
+
+    status('Timer running');
+
+    startLoop();
+
+  }
+
+  completionHandled=false;
+
+  buttons();
+
+}
+
+async function finish(fromBackend,label){
+
+  if(completionHandled)
+    return;
+
+  completionHandled=true;
+
+  const l=
+    label||currentLabel;
+
+  endTime=null;
+  pausedRemaining=0;
+  currentPaused=false;
+
+  stopLoop();
+
+  $('label').textContent=l;
+
+  show(0);
+
+  status('🔔 Timer complete!');
+
+  document.title='🔔 Timer Complete';
+
+  buttons();
+
+  document.body.classList.add('complete');
+
+  beep();
+
+  notify(l);
+
+  setTimeout(()=>{
+    document.body.classList.remove('complete');
+  },2500);
+
+  if(!fromBackend){
+
+    try{
+      await call('stop');
+    }catch(e){}
+
+  }
+
+}
+
+function ready(){
+
+  endTime=null;
+  pausedRemaining=0;
+  currentPaused=false;
+  completionHandled=false;
+
+  stopLoop();
+
+  $('label').textContent='Ready';
+
+  show(0);
+
+  status('No timer running.');
+
+  document.title='Ade Focus Timer';
+
+  buttons();
+
+}
+
+async function start(){
+
+  const m=
+    Number($('minutes').value);
+
+  if(!m || m<1){
+
+    alert(
+      'Please enter a valid number of minutes.'
+    );
+
+    return;
+
+  }
+
+  status('Starting timer…');
+
+  try{
+
+    apply(
+      await call(
+        'start',
+        m*60,
+        'Focus Block'
+      )
+    );
+
+  }catch(e){
+
+    status(e.message,true);
+
+  }
+
+}
+
+async function pause(){
+
+  status('Pausing…');
+
+  try{
+
+    apply(
+      await call('pause')
+    );
+
+  }catch(e){
+
+    status(e.message,true);
+
+  }
+
+}
+
+async function resume(){
+
+  status('Resuming…');
+
+  try{
+
+    apply(
+      await call('resume')
+    );
+
+  }catch(e){
+
+    status(e.message,true);
+
+  }
+
+}
+
+async function stop(){
+
+  try{
+
+    await call('stop');
+
+    ready();
+
+  }catch(e){
+
+    status(e.message,true);
+
+  }
+
+}
+
+async function poll(){
+
+  try{
+
+    const s=
+      await call('status');
+
+    if(s && s.completed){
+
+      finish(
+        true,
+        s.label||currentLabel
+      );
+
+      return;
+
+    }
+
+    if(s && s.active){
+
+      apply(s);
+
+      return;
+
+    }
+
+    if(!completionHandled)
+      ready();
+
+  }catch(e){
+
+    console.warn(e);
+
+  }
+
+}
+
+$('notificationButton').onclick=
+  enableNotifications;
+
+$('startButton').onclick=
+  start;
+
+$('pauseButton').onclick=
+  pause;
+
+$('resumeButton').onclick=
+  resume;
+
+$('stopButton').onclick=
+  stop;
+
+notifStatus();
+
+buttons();
+
+poll();
+
+setInterval(
+  poll,
+  5000
+);
+
+document.addEventListener(
+  'visibilitychange',
+  ()=>{
+    if(!document.hidden){
+      notifStatus();
+      poll();
+    }
+  }
+);
+
+</script>
+
+</body>
+</html>
