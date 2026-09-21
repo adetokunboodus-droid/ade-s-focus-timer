@@ -29,7 +29,7 @@
       background: white;
       border-radius: 18px;
       padding: 32px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
       text-align: center;
     }
 
@@ -132,10 +132,6 @@
       margin-top: 16px;
       line-height: 1.5;
     }
-
-    .hidden {
-      display: none;
-    }
   </style>
 </head>
 
@@ -191,7 +187,6 @@
 
       </div>
 
-
       <div class="settings">
 
         <label for="duration">
@@ -212,7 +207,6 @@
         </button>
 
       </div>
-
 
       <div class="small">
         This timer synchronises with your Ade Focus Timer
@@ -245,7 +239,9 @@ let currentLabel = '';
 
 let completionHandled = false;
 
-let polling = null;
+let backendPolling = null;
+
+let displayInterval = null;
 
 
 /* ==========================================
@@ -405,7 +401,9 @@ async function startTimer() {
 
     updateDisplay(result);
 
-    startPolling();
+    startDisplayClock();
+
+    startBackendPolling();
 
   }
 
@@ -454,7 +452,9 @@ async function pauseTimer() {
 
     updateDisplay(result);
 
-    setStatus('Timer paused.');
+    stopDisplayClock();
+
+    setStatus('⏸ Timer paused.');
 
   }
 
@@ -505,7 +505,9 @@ async function resumeTimer() {
 
     updateDisplay(result);
 
-    startPolling();
+    startDisplayClock();
+
+    startBackendPolling();
 
   }
 
@@ -537,7 +539,22 @@ async function stopTimer() {
       });
 
 
-    stopPolling();
+    if (!result.ok) {
+
+      setStatus(
+        result.error ||
+        'Unable to stop timer.'
+      );
+
+      return;
+
+    }
+
+
+    stopBackendPolling();
+
+    stopDisplayClock();
+
 
     currentTimer = null;
 
@@ -555,6 +572,10 @@ async function stopTimer() {
       'timerLabel'
     ).textContent =
       'No active timer';
+
+
+    document.title =
+      'Ade Focus Timer';
 
 
     setStatus('Timer stopped.');
@@ -597,8 +618,8 @@ async function getStatus() {
 
 
     if (
-      result.active ||
-      result.paused
+      result.active &&
+      !result.paused
     ) {
 
       currentLabel =
@@ -608,43 +629,61 @@ async function getStatus() {
 
       updateDisplay(result);
 
+      startDisplayClock();
 
-      if (
-        result.active &&
-        !result.paused
-      ) {
+      startBackendPolling();
 
-        startPolling();
-
-      }
+      return;
 
     }
 
 
-    else {
+    if (
+      result.active &&
+      result.paused
+    ) {
 
-      if (result.completed) {
+      updateDisplay(result);
 
-        if (!completionHandled) {
+      stopDisplayClock();
 
-          completionHandled = true;
+      stopBackendPolling();
 
-          finishTimer(
-            false,
-            result.label ||
-            currentLabel ||
-            'Focus Block'
-          );
+      return;
 
-        }
+    }
+
+
+    if (
+      !result.active &&
+      result.completed
+    ) {
+
+      if (!completionHandled) {
+
+        completionHandled = true;
+
+        finishTimer(
+          true,
+          result.label ||
+          currentLabel ||
+          'Focus Block'
+        );
 
       }
 
-      else {
+      return;
 
-        updateIdleState();
+    }
 
-      }
+
+    if (!result.active) {
+
+      stopDisplayClock();
+
+      stopBackendPolling();
+
+      updateIdleState();
 
     }
 
@@ -664,7 +703,7 @@ async function getStatus() {
 
 
 /* ==========================================
-   DISPLAY UPDATE
+   UPDATE DISPLAY FROM BACKEND
    ========================================== */
 
 function updateDisplay(state) {
@@ -685,37 +724,155 @@ function updateDisplay(state) {
     currentLabel;
 
 
-  let remaining =
-    Number(
-      state.remaining_seconds
-    );
-
+  /*
+   * For an active timer we use ends_at
+   * as the authoritative time source.
+   */
 
   if (
-    !Number.isFinite(remaining)
+    state.active &&
+    !state.paused &&
+    state.ends_at
   ) {
 
-    remaining = 0;
+    currentTimer.ends_at =
+      state.ends_at;
 
   }
 
 
-  renderTime(remaining);
-
+  /*
+   * For a paused timer we use the stored
+   * remaining_seconds value.
+   */
 
   if (state.paused) {
+
+    renderTime(
+      Number(
+        state.remaining_seconds || 0
+      )
+    );
+
 
     setStatus(
       '⏸ Timer paused'
     );
 
+    return;
+
   }
 
-  else {
+
+  if (
+    state.active &&
+    state.ends_at
+  ) {
+
+    updateDisplayFromEndTime();
 
     setStatus(
       '⏱ Timer running'
     );
+
+  }
+
+}
+
+
+/* ==========================================
+   LOCAL DISPLAY CLOCK
+   ========================================== */
+
+function startDisplayClock() {
+
+  stopDisplayClock();
+
+
+  updateDisplayFromEndTime();
+
+
+  /*
+   * Update the visible countdown every second.
+   */
+
+  displayInterval =
+    setInterval(
+      updateDisplayFromEndTime,
+      1000
+    );
+
+}
+
+
+/* ==========================================
+   STOP LOCAL DISPLAY CLOCK
+   ========================================== */
+
+function stopDisplayClock() {
+
+  if (displayInterval) {
+
+    clearInterval(
+      displayInterval
+    );
+
+    displayInterval = null;
+
+  }
+
+}
+
+
+/* ==========================================
+   UPDATE FROM END TIME
+   ========================================== */
+
+function updateDisplayFromEndTime() {
+
+  if (
+    !currentTimer ||
+    currentTimer.paused ||
+    !currentTimer.ends_at
+  ) {
+
+    return;
+
+  }
+
+
+  const remaining =
+    Math.max(
+      0,
+      Math.ceil(
+        (
+          Date.parse(
+            currentTimer.ends_at
+          ) -
+          Date.now()
+        ) / 1000
+      )
+    );
+
+
+  renderTime(
+    remaining
+  );
+
+
+  /*
+   * Local countdown reached zero.
+   *
+   * We don't immediately assume completion
+   * until we check the backend.
+   */
+
+  if (
+    remaining <= 0 &&
+    !completionHandled
+  ) {
+
+    checkTimer();
 
   }
 
@@ -767,39 +924,45 @@ function renderTime(seconds) {
 
 
 /* ==========================================
-   POLLING
+   BACKEND POLLING
    ========================================== */
 
-function startPolling() {
+function startBackendPolling() {
 
-  stopPolling();
+  if (backendPolling) {
+
+    return;
+
+  }
 
 
-  polling =
+  /*
+   * Backend synchronisation every 5 seconds.
+   * The visible countdown itself runs every second.
+   */
+
+  backendPolling =
     setInterval(
       checkTimer,
       5000
     );
 
-
-  checkTimer();
-
 }
 
 
 /* ==========================================
-   STOP POLLING
+   STOP BACKEND POLLING
    ========================================== */
 
-function stopPolling() {
+function stopBackendPolling() {
 
-  if (polling) {
+  if (backendPolling) {
 
     clearInterval(
-      polling
+      backendPolling
     );
 
-    polling = null;
+    backendPolling = null;
 
   }
 
@@ -827,31 +990,77 @@ async function checkTimer() {
     }
 
 
+    /*
+     * Active timer.
+     */
+
     if (
       result.active &&
       !result.paused
     ) {
 
-      updateDisplay(result);
+      currentLabel =
+        result.label ||
+        currentLabel ||
+        'Focus Block';
+
+
+      /*
+       * Refresh the authoritative end time.
+       */
+
+      currentTimer =
+        result;
+
+
+      currentTimer.ends_at =
+        result.ends_at;
+
+
+      document.getElementById(
+        'timerLabel'
+      ).textContent =
+        currentLabel;
+
+
+      updateDisplayFromEndTime();
 
       return;
 
     }
 
+
+    /*
+     * Paused timer.
+     */
 
     if (
       result.active &&
       result.paused
     ) {
 
+      currentTimer =
+        result;
+
+
+      currentLabel =
+        result.label ||
+        currentLabel ||
+        'Focus Block';
+
+
       updateDisplay(result);
 
-      stopPolling();
+      stopDisplayClock();
 
       return;
 
     }
 
+
+    /*
+     * Completed timer.
+     */
 
     if (
       !result.active &&
@@ -863,7 +1072,7 @@ async function checkTimer() {
         completionHandled = true;
 
         finishTimer(
-          false,
+          true,
           result.label ||
           currentLabel ||
           'Focus Block'
@@ -876,9 +1085,15 @@ async function checkTimer() {
     }
 
 
+    /*
+     * No timer.
+     */
+
     if (!result.active) {
 
-      stopPolling();
+      stopDisplayClock();
+
+      stopBackendPolling();
 
       updateIdleState();
 
@@ -905,13 +1120,18 @@ async function checkTimer() {
 
 function updateIdleState() {
 
+  currentTimer = null;
+
+
   document.getElementById(
     'timerLabel'
   ).textContent =
     'No active timer';
 
 
-  setStatus('Ready');
+  setStatus(
+    'Ready'
+  );
 
 
   document.title =
@@ -929,7 +1149,9 @@ function finishTimer(
   label = 'Focus Block'
 ) {
 
-  stopPolling();
+  stopDisplayClock();
+
+  stopBackendPolling();
 
 
   renderTime(0);
@@ -947,7 +1169,7 @@ function finishTimer(
 
 
   /*
-   * Play the gentle completion chime.
+   * Gentle three-note chime.
    */
 
   beep();
@@ -967,8 +1189,7 @@ function finishTimer(
 
 
   /*
-   * Tell the backend that the timer
-   * is no longer active.
+   * Clear the timer on the backend.
    */
 
   apiRequest({
@@ -985,7 +1206,7 @@ function finishTimer(
 
 
 /* ==========================================
-   GENTLE CHIME
+   GENTLE COMPLETION CHIME
    ========================================== */
 
 function beep() {
@@ -1011,8 +1232,8 @@ function beep() {
     /*
      * C5 → E5 → G5
      *
-     * A gentle ascending
-     * three-note completion chime.
+     * Gentle ascending
+     * three-note chime.
      */
 
     const notes = [
@@ -1130,7 +1351,7 @@ function beep() {
 
 
 /* ==========================================
-   NOTIFICATIONS
+   ENABLE NOTIFICATIONS
    ========================================== */
 
 async function enableNotifications() {
@@ -1234,6 +1455,7 @@ function showNotification(
         body:
           label +
           ' has finished. Time to review your progress or take a short break.',
+
         tag:
           'ade-focus-timer'
       }
