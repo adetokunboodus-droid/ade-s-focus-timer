@@ -1,445 +1,1046 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+  >
 
   <title>Ade Focus Timer</title>
 
+
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      background: #f5f7fa;
-      color: #1f2937;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
+
+    * {
+      box-sizing: border-box;
     }
+
+
+    body {
+
+      margin: 0;
+
+      min-height: 100vh;
+
+      display: flex;
+
+      align-items: center;
+
+      justify-content: center;
+
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+
+      background:
+        #f4f5f7;
+
+      color:
+        #111827;
+
+    }
+
 
     .container {
+
       width: 100%;
+
       max-width: 520px;
+
       padding: 24px;
-      box-sizing: border-box;
+
     }
+
 
     .card {
+
       background: white;
-      border-radius: 18px;
+
+      border-radius: 20px;
+
       padding: 32px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+
+      box-shadow:
+        0 10px 35px rgba(0,0,0,0.08);
+
       text-align: center;
+
     }
+
 
     h1 {
-      margin-top: 0;
-      margin-bottom: 8px;
+
+      margin:
+        0 0 8px;
+
       font-size: 28px;
+
+      font-weight: 700;
+
     }
+
 
     .subtitle {
-      color: #6b7280;
-      margin-bottom: 28px;
+
+      margin:
+        0 0 28px;
+
+      color:
+        #6b7280;
+
+      font-size: 14px;
+
     }
+
 
     .timer {
-      font-size: 72px;
+
+      font-size: 76px;
+
       font-weight: 700;
-      letter-spacing: 2px;
-      margin: 24px 0;
+
+      letter-spacing: -3px;
+
+      margin:
+        20px 0;
+
+      font-variant-numeric:
+        tabular-nums;
+
     }
+
 
     .label {
-      font-size: 18px;
-      color: #4b5563;
-      margin-bottom: 20px;
+
+      font-size: 17px;
+
+      font-weight: 600;
+
+      min-height: 24px;
+
+      margin-bottom: 8px;
+
     }
+
 
     .status {
-      min-height: 24px;
-      margin: 12px 0 20px;
-      font-weight: 600;
+
+      font-size: 14px;
+
+      color:
+        #6b7280;
+
+      min-height: 22px;
+
+      margin-bottom: 22px;
+
     }
+
 
     .controls {
+
       display: flex;
+
       flex-wrap: wrap;
+
       gap: 10px;
+
       justify-content: center;
+
       margin-top: 20px;
+
     }
+
 
     button {
+
       border: none;
+
       border-radius: 10px;
-      padding: 12px 18px;
+
+      padding:
+        12px 18px;
+
       font-size: 15px;
+
       font-weight: 600;
+
       cursor: pointer;
+
+      background:
+        #111827;
+
+      color: white;
+
+      transition:
+        transform 0.1s ease,
+        opacity 0.1s ease;
+
     }
+
 
     button:hover {
+
       opacity: 0.9;
+
     }
 
-    .start {
-      background: #16a34a;
-      color: white;
+
+    button:active {
+
+      transform:
+        scale(0.97);
+
     }
 
-    .pause {
-      background: #f59e0b;
-      color: white;
+
+    button:disabled {
+
+      opacity:
+        0.45;
+
+      cursor:
+        not-allowed;
+
     }
 
-    .resume {
-      background: #2563eb;
-      color: white;
+
+    .secondary {
+
+      background:
+        #e5e7eb;
+
+      color:
+        #111827;
+
     }
 
-    .stop {
-      background: #dc2626;
-      color: white;
+
+    .danger {
+
+      background:
+        #b91c1c;
+
     }
 
-    .notification {
-      background: #111827;
-      color: white;
+
+    .sound-button {
+
+      margin-top: 18px;
+
+      width: 100%;
+
+      background:
+        #374151;
+
+    }
+
+
+    .notification-status {
+
+      margin-top: 10px;
+
+      font-size: 13px;
+
+      color:
+        #6b7280;
+
+    }
+
+
+    .duration-row {
+
+      display: flex;
+
+      gap: 10px;
+
       margin-top: 20px;
+
     }
 
-    .settings {
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px solid #e5e7eb;
-    }
 
     input {
-      width: 100%;
-      box-sizing: border-box;
-      padding: 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 16px;
-      margin-top: 8px;
+
+      flex: 1;
+
+      min-width: 0;
+
+      border:
+        1px solid #d1d5db;
+
+      border-radius: 10px;
+
+      padding:
+        12px;
+
+      font-size: 15px;
+
+      text-align: center;
+
     }
 
-    .small {
-      font-size: 13px;
-      color: #6b7280;
-      margin-top: 16px;
+
+    .start-manual {
+
+      background:
+        #2563eb;
+
+    }
+
+
+    .footer {
+
+      margin-top: 24px;
+
+      font-size: 12px;
+
+      color:
+        #9ca3af;
+
       line-height: 1.5;
+
     }
-  </style>
-</head>
-
-<body>
-
-  <div class="container">
-
-    <div class="card">
-
-      <h1>🎯 Ade Focus Timer</h1>
-
-      <div class="subtitle">
-        Stay focused. Work deliberately.
-      </div>
-
-      <div class="label" id="timerLabel">
-        No active timer
-      </div>
-
-      <div class="timer" id="timer">
-        25:00
-      </div>
-
-      <div class="status" id="status">
-        Ready
-      </div>
-
-      <div class="controls">
-
-        <button
-          class="start"
-          onclick="startTimer()">
-          ▶ Start
-        </button>
-
-        <button
-          class="pause"
-          onclick="pauseTimer()">
-          ⏸ Pause
-        </button>
-
-        <button
-          class="resume"
-          onclick="resumeTimer()">
-          ▶ Resume
-        </button>
-
-        <button
-          class="stop"
-          onclick="stopTimer()">
-          ■ Stop
-        </button>
-
-      </div>
-
-      <div class="settings">
-
-        <label for="duration">
-          Timer duration (minutes)
-        </label>
-
-        <input
-          id="duration"
-          type="number"
-          min="1"
-          max="1440"
-          value="25">
-
-        <button
-          class="notification"
-          onclick="enableNotifications()">
-          🔔 Enable Notifications
-        </button>
-
-      </div>
-
-      <div class="small">
-        This timer synchronises with your Ade Focus Timer
-        backend, so timers started from your GPT can also
-        appear here automatically.
-      </div>
-
-    </div>
-
-  </div>
 
 
-<script>
+    @media (max-width: 480px) {
 
-/* =====================================================
-   CONFIGURATION
-   ===================================================== */
+      .card {
 
-const API_URL =
-  'https://script.google.com/macros/s/AKfycbxJMMURG_zF__mEpvKLzTibUvELUgfO_8LyDaTMJKRVDkTsQtpHkt8hnXq_f8BLNpS4/exec';
+        padding: 24px;
 
+      }
 
-/* =====================================================
-   STATE
-   ===================================================== */
+      .timer {
 
-let currentTimer = null;
-
-let currentLabel = '';
-
-let completionHandled = false;
-
-let backendPolling = null;
-
-let displayInterval = null;
-
-
-/* =====================================================
-   JSONP API
-   ===================================================== */
-
-function apiRequest(params) {
-
-  return new Promise((resolve, reject) => {
-
-    const callbackName =
-      'timerCallback_' +
-      Date.now() +
-      '_' +
-      Math.floor(Math.random() * 100000);
-
-    const script =
-      document.createElement('script');
-
-    const query =
-      new URLSearchParams({
-        api: '1',
-        callback: callbackName,
-        ...params
-      });
-
-    const timeout =
-      setTimeout(() => {
-
-        cleanup();
-
-        reject(
-          new Error(
-            'Timer request timed out'
-          )
-        );
-
-      }, 10000);
-
-
-    window[callbackName] =
-      function(data) {
-
-        clearTimeout(timeout);
-
-        cleanup();
-
-        resolve(data);
-
-      };
-
-
-    function cleanup() {
-
-      delete window[callbackName];
-
-      if (script.parentNode) {
-
-        script.parentNode.removeChild(
-          script
-        );
+        font-size: 60px;
 
       }
 
     }
 
+  </style>
 
-    script.onerror =
-      function() {
-
-        clearTimeout(timeout);
-
-        cleanup();
-
-        reject(
-          new Error(
-            'Timer request failed'
-          )
-        );
-
-      };
+</head>
 
 
-    script.src =
-      API_URL +
-      '?' +
-      query.toString();
+<body>
 
 
-    document.body.appendChild(
-      script
+<div class="container">
+
+  <div class="card">
+
+
+    <h1>
+      Ade Focus Timer
+    </h1>
+
+
+    <p class="subtitle">
+      Shared with your GPT focus assistant
+    </p>
+
+
+    <div
+      id="label"
+      class="label"
+    >
+      No active timer
+    </div>
+
+
+    <div
+      id="timer"
+      class="timer"
+    >
+      00:00
+    </div>
+
+
+    <div
+      id="status"
+      class="status"
+    >
+      Ready
+    </div>
+
+
+    <div class="controls">
+
+      <button
+        id="pauseButton"
+        onclick="pauseTimer()"
+        disabled
+      >
+        Pause
+      </button>
+
+
+      <button
+        id="resumeButton"
+        onclick="resumeTimer()"
+        disabled
+      >
+        Resume
+      </button>
+
+
+      <button
+        id="stopButton"
+        onclick="stopTimer()"
+        disabled
+        class="danger"
+      >
+        Stop
+      </button>
+
+    </div>
+
+
+    <div class="duration-row">
+
+      <input
+        id="durationInput"
+        type="number"
+        min="1"
+        max="86400"
+        value="25"
+        placeholder="Minutes"
+      >
+
+
+      <button
+        class="start-manual"
+        onclick="startManualTimer()"
+      >
+        Start
+      </button>
+
+    </div>
+
+
+    <button
+      id="alertButton"
+      class="sound-button"
+      onclick="enableAlerts()"
+    >
+      🔔 Enable Sound & Notifications
+    </button>
+
+
+    <div
+      id="notificationStatus"
+      class="notification-status"
+    >
+      Alerts not enabled
+    </div>
+
+
+    <div class="footer">
+
+      Keep this page open in a browser tab.
+      The timer state is controlled by the GPT and
+      synchronised through the timer server.
+
+    </div>
+
+
+  </div>
+
+</div>
+
+
+
+<script>
+
+
+/* =========================================================
+   CONFIGURATION
+   ========================================================= */
+
+
+const API_URL =
+  "https://script.google.com/macros/s/AKfycbxJMMURG_zF__mEpvKLzTibUvELUgfO_8LyDaTMJKRVDkTsQtpHkt8hnXq_f8BLNpS4/exec";
+
+
+/*
+ * Poll the Apps Script backend every 5 seconds.
+ *
+ * The backend remains the source of truth.
+ */
+
+const POLL_INTERVAL =
+  5000;
+
+
+/* =========================================================
+   STATE
+   ========================================================= */
+
+
+let currentTimer =
+  null;
+
+
+let displayInterval =
+  null;
+
+
+let backendPolling =
+  null;
+
+
+let audioContext =
+  null;
+
+
+let audioUnlocked =
+  false;
+
+
+let lastCompletedTimer =
+  null;
+
+
+let lastKnownEndsAt =
+  null;
+
+
+
+/* =========================================================
+   DOM
+   ========================================================= */
+
+
+const timerElement =
+  document.getElementById(
+    "timer"
+  );
+
+
+const labelElement =
+  document.getElementById(
+    "label"
+  );
+
+
+const statusElement =
+  document.getElementById(
+    "status"
+  );
+
+
+const pauseButton =
+  document.getElementById(
+    "pauseButton"
+  );
+
+
+const resumeButton =
+  document.getElementById(
+    "resumeButton"
+  );
+
+
+const stopButton =
+  document.getElementById(
+    "stopButton"
+  );
+
+
+const notificationStatus =
+  document.getElementById(
+    "notificationStatus"
+  );
+
+
+const alertButton =
+  document.getElementById(
+    "alertButton"
+  );
+
+
+/* =========================================================
+   AUDIO INITIALISATION
+   ========================================================= */
+
+
+/*
+ * Create the AudioContext after a user interaction.
+ *
+ * This is important because Chrome/Safari can block
+ * audio that starts without a user gesture.
+ */
+
+
+function initialiseAudio() {
+
+  try {
+
+    if (!audioContext) {
+
+      const AudioContextClass =
+        window.AudioContext ||
+        window.webkitAudioContext;
+
+      if (!AudioContextClass) {
+
+        return false;
+
+      }
+
+      audioContext =
+        new AudioContextClass();
+
+    }
+
+
+    if (
+      audioContext.state ===
+      "suspended"
+    ) {
+
+      audioContext.resume();
+
+    }
+
+
+    audioUnlocked =
+      true;
+
+    return true;
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Audio initialisation failed:",
+      error
     );
 
-  });
+    return false;
+
+  }
 
 }
 
 
-/* =====================================================
-   START TIMER
-   ===================================================== */
+/* =========================================================
+   LOUD COMPLETION ALERT
+   ========================================================= */
 
-async function startTimer() {
 
-  const durationInput =
-    document.getElementById(
-      'duration'
+/*
+ * Plays one attention burst.
+ *
+ * Several tones are layered so the sound is much more
+ * noticeable than the previous single gentle beep.
+ */
+
+
+function playAlertBurst() {
+
+  if (!audioContext) {
+
+    if (!initialiseAudio()) {
+
+      return;
+
+    }
+
+  }
+
+
+  try {
+
+    const now =
+      audioContext.currentTime;
+
+
+    const master =
+      audioContext.createGain();
+
+
+    master.gain.setValueAtTime(
+      0.0001,
+      now
     );
 
-  const minutes =
-    Number(
-      durationInput.value
+
+    master.gain.exponentialRampToValueAtTime(
+      0.8,
+      now + 0.03
     );
 
+
+    master.gain.exponentialRampToValueAtTime(
+      0.0001,
+      now + 0.55
+    );
+
+
+    master.connect(
+      audioContext.destination
+    );
+
+
+    /*
+     * First tone
+     */
+
+    const oscillator1 =
+      audioContext.createOscillator();
+
+
+    oscillator1.type =
+      "sine";
+
+
+    oscillator1.frequency.setValueAtTime(
+      880,
+      now
+    );
+
+
+    oscillator1.connect(
+      master
+    );
+
+
+    oscillator1.start(
+      now
+    );
+
+
+    oscillator1.stop(
+      now + 0.22
+    );
+
+
+    /*
+     * Second tone
+     */
+
+    const oscillator2 =
+      audioContext.createOscillator();
+
+
+    oscillator2.type =
+      "sine";
+
+
+    oscillator2.frequency.setValueAtTime(
+      1174.66,
+      now + 0.18
+    );
+
+
+    oscillator2.connect(
+      master
+    );
+
+
+    oscillator2.start(
+      now + 0.18
+    );
+
+
+    oscillator2.stop(
+      now + 0.42
+    );
+
+
+    /*
+     * Third higher tone.
+     */
+
+    const oscillator3 =
+      audioContext.createOscillator();
+
+
+    oscillator3.type =
+      "triangle";
+
+
+    oscillator3.frequency.setValueAtTime(
+      1396.91,
+      now + 0.36
+    );
+
+
+    oscillator3.connect(
+      master
+    );
+
+
+    oscillator3.start(
+      now + 0.36
+    );
+
+
+    oscillator3.stop(
+      now + 0.55
+    );
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Could not play alert:",
+      error
+    );
+
+  }
+
+}
+
+
+/*
+ * Three separate alert bursts.
+ *
+ * This makes the completion considerably harder to miss.
+ */
+
+
+function playCompletionSound() {
+
+  initialiseAudio();
+
+
+  /*
+   * First burst immediately.
+   */
+
+  playAlertBurst();
+
+
+  /*
+   * Second burst.
+   */
+
+  setTimeout(
+    () => {
+
+      playAlertBurst();
+
+    },
+    800
+  );
+
+
+  /*
+   * Third burst.
+   */
+
+  setTimeout(
+    () => {
+
+      playAlertBurst();
+
+    },
+    1600
+  );
+
+}
+
+
+/* =========================================================
+   ENABLE ALERTS
+   ========================================================= */
+
+
+async function enableAlerts() {
+
+  /*
+   * Unlock audio through a direct user interaction.
+   */
+
+  initialiseAudio();
+
+
+  /*
+   * Request browser notification permission.
+   */
 
   if (
-    !Number.isFinite(minutes) ||
-    minutes < 1
+    "Notification" in window
   ) {
 
-    setStatus(
-      'Please enter a valid duration.'
-    );
+    try {
+
+      const permission =
+        await Notification.requestPermission();
+
+
+      updateNotificationStatus(
+        permission
+      );
+
+    }
+
+    catch (error) {
+
+      console.error(
+        "Notification permission error:",
+        error
+      );
+
+      updateNotificationStatus(
+        "error"
+      );
+
+    }
+
+  }
+
+  else {
+
+    notificationStatus.textContent =
+      "Browser notifications are not supported.";
+
+  }
+
+
+  /*
+   * Give the user a small confirmation sound.
+   */
+
+  playAlertBurst();
+
+
+  alertButton.textContent =
+    "🔔 Alerts Enabled";
+
+
+  alertButton.disabled =
+    false;
+
+}
+
+
+/* =========================================================
+   NOTIFICATION STATUS
+   ========================================================= */
+
+
+function updateNotificationStatus(
+  permission
+) {
+
+  if (
+    permission ===
+    "granted"
+  ) {
+
+    notificationStatus.textContent =
+      "🔔 Notifications enabled • loud completion alert enabled";
+
+  }
+
+  else if (
+    permission ===
+    "denied"
+  ) {
+
+    notificationStatus.textContent =
+      "🔕 Notifications are blocked in browser settings";
+
+  }
+
+  else {
+
+    notificationStatus.textContent =
+      "Notifications not enabled";
+
+  }
+
+}
+
+
+/* =========================================================
+   BROWSER NOTIFICATION
+   ========================================================= */
+
+
+function showCompletionNotification(
+  label
+) {
+
+  if (
+    !("Notification" in window)
+  ) {
 
     return;
 
   }
 
 
-  const durationSeconds =
-    Math.round(
-      minutes * 60
-    );
+  if (
+    Notification.permission !==
+    "granted"
+  ) {
 
-
-  try {
-
-    setStatus(
-      'Starting timer...'
-    );
-
-
-    const result =
-      await apiRequest({
-
-        action: 'start',
-
-        duration_seconds:
-          durationSeconds,
-
-        label:
-          'Focus Block'
-
-      });
-
-
-    if (!result.ok) {
-
-      setStatus(
-        result.error ||
-        'Unable to start timer.'
-      );
-
-      return;
-
-    }
-
-
-    completionHandled =
-      false;
-
-
-    currentLabel =
-      result.label ||
-      'Focus Block';
-
-
-    updateDisplay(
-      result
-    );
-
-
-    startDisplayClock();
-
-    ensureBackendPolling();
+    return;
 
   }
 
 
+  try {
+
+    const notification =
+      new Notification(
+        "🔔 Focus block complete",
+        {
+          body:
+            label
+              ? label +
+                " is complete."
+              : "Your focus block is complete.",
+
+          icon:
+            "https://mellow-blancmange-e3aeb9.netlify.app/favicon.ico",
+
+          tag:
+            "ade-focus-timer-complete",
+
+          renotify:
+            true,
+
+          requireInteraction:
+            true
+        }
+      );
+
+
+    notification.onclick =
+      function() {
+
+        window.focus();
+
+        notification.close();
+
+      };
+
+
+  }
+
   catch (error) {
 
     console.error(
+      "Notification failed:",
       error
-    );
-
-
-    setStatus(
-      'Unable to connect to timer.'
     );
 
   }
@@ -447,230 +1048,286 @@ async function startTimer() {
 }
 
 
-/* =====================================================
-   PAUSE TIMER
-   ===================================================== */
+/* =========================================================
+   COMPLETION HANDLER
+   ========================================================= */
 
-async function pauseTimer() {
 
-  try {
+function handleTimerCompleted(
+  label
+) {
 
-    setStatus(
-      'Pausing...'
+  /*
+   * Prevent duplicate notifications if the same completed
+   * timer is returned by more than one poll.
+   */
+
+  const completionKey =
+    String(
+      lastKnownEndsAt ||
+      label ||
+      Date.now()
     );
 
 
-    const result =
-      await apiRequest({
-        action: 'pause'
-      });
+  if (
+    lastCompletedTimer ===
+    completionKey
+  ) {
 
-
-    if (!result.ok) {
-
-      setStatus(
-        result.error ||
-        'Unable to pause timer.'
-      );
-
-      return;
-
-    }
-
-
-    updateDisplay(
-      result
-    );
-
-
-    stopDisplayClock();
-
-
-    setStatus(
-      '⏸ Timer paused.'
-    );
+    return;
 
   }
 
 
-  catch (error) {
-
-    console.error(
-      error
-    );
+  lastCompletedTimer =
+    completionKey;
 
 
-    setStatus(
-      'Unable to pause timer.'
-    );
+  currentTimer =
+    null;
 
-  }
+
+  stopDisplayClock();
+
+
+  timerElement.textContent =
+    "00:00";
+
+
+  labelElement.textContent =
+    label ||
+    "Focus block complete";
+
+
+  statusElement.textContent =
+    "Completed";
+
+
+  updateButtons(
+    false,
+    false,
+    false
+  );
+
+
+  /*
+   * Browser notification.
+   */
+
+  showCompletionNotification(
+    label
+  );
+
+
+  /*
+   * Loud three-burst sound.
+   */
+
+  playCompletionSound();
+
+
+  /*
+   * Change browser title.
+   */
+
+  document.title =
+    "🔔 Focus block complete";
+
+
+  /*
+   * Return title to normal after 10 seconds.
+   */
+
+  setTimeout(
+    () => {
+
+      document.title =
+        "Ade Focus Timer";
+
+    },
+    10000
+  );
 
 }
 
 
-/* =====================================================
-   RESUME TIMER
-   ===================================================== */
-
-async function resumeTimer() {
-
-  try {
-
-    setStatus(
-      'Resuming...'
-    );
+/* =========================================================
+   API JSONP
+   ========================================================= */
 
 
-    const result =
-      await apiRequest({
-        action: 'resume'
-      });
+/*
+ * Apps Script is queried using JSONP because ordinary
+ * browser fetch requests can be blocked by CORS.
+ */
 
 
-    if (!result.ok) {
+function callApi(
+  action,
+  params = {}
+) {
 
-      setStatus(
-        result.error ||
-        'Unable to resume timer.'
+  return new Promise(
+    (
+      resolve,
+      reject
+    ) => {
+
+      const callbackName =
+        "timerCallback_" +
+        Date.now() +
+        "_" +
+        Math.floor(
+          Math.random() * 100000
+        );
+
+
+      const script =
+        document.createElement(
+          "script"
+        );
+
+
+      const query =
+        new URLSearchParams();
+
+
+      query.set(
+        "api",
+        "1"
       );
 
-      return;
+
+      query.set(
+        "action",
+        action
+      );
+
+
+      query.set(
+        "callback",
+        callbackName
+      );
+
+
+      Object.keys(
+        params
+      ).forEach(
+        key => {
+
+          if (
+            params[key] !==
+            undefined &&
+            params[key] !==
+            null
+          ) {
+
+            query.set(
+              key,
+              params[key]
+            );
+
+          }
+
+        }
+      );
+
+
+      window[callbackName] =
+        function(data) {
+
+          cleanup();
+
+          resolve(
+            data
+          );
+
+        };
+
+
+      function cleanup() {
+
+        delete window[
+          callbackName
+        ];
+
+
+        if (
+          script.parentNode
+        ) {
+
+          script.parentNode.removeChild(
+            script
+          );
+
+        }
+
+      }
+
+
+      script.onerror =
+        function() {
+
+          cleanup();
+
+          reject(
+            new Error(
+              "Timer API request failed"
+            )
+          );
+
+        };
+
+
+      script.src =
+        API_URL +
+        "?" +
+        query.toString();
+
+
+      document.body.appendChild(
+        script
+      );
 
     }
-
-
-    completionHandled =
-      false;
-
-
-    updateDisplay(
-      result
-    );
-
-
-    startDisplayClock();
-
-    ensureBackendPolling();
-
-  }
-
-
-  catch (error) {
-
-    console.error(
-      error
-    );
-
-
-    setStatus(
-      'Unable to resume timer.'
-    );
-
-  }
+  );
 
 }
 
 
-/* =====================================================
-   STOP TIMER
-   ===================================================== */
+/* =========================================================
+   START TIMER
+   ========================================================= */
 
-async function stopTimer() {
+
+async function startTimer(
+  durationSeconds,
+  label
+) {
+
+  /*
+   * If the timer page itself is used to start a timer,
+   * unlock audio.
+   */
+
+  initialiseAudio();
+
 
   try {
 
     const result =
-      await apiRequest({
-        action: 'stop'
-      });
+      await callApi(
+        "start",
+        {
+          duration_seconds:
+            durationSeconds,
 
-
-    if (!result.ok) {
-
-      setStatus(
-        result.error ||
-        'Unable to stop timer.'
+          label:
+            label ||
+            "Focus Block"
+        }
       );
-
-      return;
-
-    }
-
-
-    stopDisplayClock();
-
-
-    currentTimer =
-      null;
-
-
-    currentLabel =
-      '';
-
-
-    completionHandled =
-      false;
-
-
-    document.getElementById(
-      'timer'
-    ).textContent =
-      '25:00';
-
-
-    document.getElementById(
-      'timerLabel'
-    ).textContent =
-      'No active timer';
-
-
-    document.title =
-      'Ade Focus Timer';
-
-
-    setStatus(
-      'Timer stopped.'
-    );
-
-  }
-
-
-  catch (error) {
-
-    console.error(
-      error
-    );
-
-
-    setStatus(
-      'Unable to stop timer.'
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   GET STATUS
-   ===================================================== */
-
-async function getStatus() {
-
-  try {
-
-    const result =
-      await apiRequest({
-        action: 'status'
-      });
-
-
-    if (!result.ok) {
-
-      return;
-
-    }
 
 
     processTimerState(
@@ -679,11 +1336,90 @@ async function getStatus() {
 
   }
 
+  catch (error) {
+
+    console.error(
+      error
+    );
+
+    statusElement.textContent =
+      "Unable to start timer";
+
+  }
+
+}
+
+
+/* =========================================================
+   MANUAL START
+   ========================================================= */
+
+
+function startManualTimer() {
+
+  initialiseAudio();
+
+
+  const minutes =
+    Number(
+      document.getElementById(
+        "durationInput"
+      ).value
+    );
+
+
+  if (
+    !Number.isFinite(minutes) ||
+    minutes <= 0
+  ) {
+
+    alert(
+      "Please enter a valid number of minutes."
+    );
+
+    return;
+
+  }
+
+
+  const seconds =
+    Math.round(
+      minutes * 60
+    );
+
+
+  startTimer(
+    seconds,
+    "Focus Block"
+  );
+
+}
+
+
+/* =========================================================
+   PAUSE
+   ========================================================= */
+
+
+async function pauseTimer() {
+
+  try {
+
+    const result =
+      await callApi(
+        "pause"
+      );
+
+
+    processTimerState(
+      result
+    );
+
+  }
 
   catch (error) {
 
     console.error(
-      'Status check failed:',
       error
     );
 
@@ -692,43 +1428,143 @@ async function getStatus() {
 }
 
 
-/* =====================================================
+/* =========================================================
+   RESUME
+   ========================================================= */
+
+
+async function resumeTimer() {
+
+  try {
+
+    const result =
+      await callApi(
+        "resume"
+      );
+
+
+    processTimerState(
+      result
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   STOP
+   ========================================================= */
+
+
+async function stopTimer() {
+
+  try {
+
+    const result =
+      await callApi(
+        "stop"
+      );
+
+
+    currentTimer =
+      null;
+
+
+    lastKnownEndsAt =
+      null;
+
+
+    stopDisplayClock();
+
+
+    timerElement.textContent =
+      "00:00";
+
+
+    labelElement.textContent =
+      "No active timer";
+
+
+    statusElement.textContent =
+      "Stopped";
+
+
+    updateButtons(
+      false,
+      false,
+      false
+    );
+
+
+    document.title =
+      "Ade Focus Timer";
+
+
+  }
+
+  catch (error) {
+
+    console.error(
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
+   STATUS
+   ========================================================= */
+
+
+async function getStatus() {
+
+  try {
+
+    const result =
+      await callApi(
+        "status"
+      );
+
+
+    processTimerState(
+      result
+    );
+
+  }
+
+  catch (error) {
+
+    console.error(
+      "Status check failed:",
+      error
+    );
+
+  }
+
+}
+
+
+/* =========================================================
    PROCESS TIMER STATE
-   ===================================================== */
+   ========================================================= */
+
 
 function processTimerState(
   result
 ) {
 
-  /*
-   * ACTIVE TIMER
-   */
-
-  if (
-    result.active &&
-    !result.paused
-  ) {
-
-    completionHandled =
-      false;
-
-
-    currentLabel =
-      result.label ||
-      'Focus Block';
-
-
-    currentTimer =
-      result;
-
-
-    document.getElementById(
-      'timerLabel'
-    ).textContent =
-      currentLabel;
-
-
-    startDisplayClock();
+  if (!result) {
 
     return;
 
@@ -736,73 +1572,30 @@ function processTimerState(
 
 
   /*
-   * PAUSED TIMER
+   * Timer completed.
    */
 
   if (
-    result.active &&
-    result.paused
+    result.completed ===
+    true
   ) {
 
-    currentTimer =
-      result;
-
-
-    currentLabel =
-      result.label ||
-      currentLabel ||
-      'Focus Block';
-
-
-    updateDisplay(
-      result
+    handleTimerCompleted(
+      result.label
     );
 
-
-    stopDisplayClock();
-
     return;
 
   }
 
 
   /*
-   * COMPLETED TIMER
+   * No active timer.
    */
 
   if (
-    !result.active &&
-    result.completed
-  ) {
-
-    if (
-      !completionHandled
-    ) {
-
-      completionHandled =
-        true;
-
-
-      finishTimer(
-        true,
-        result.label ||
-        currentLabel ||
-        'Focus Block'
-      );
-
-    }
-
-    return;
-
-  }
-
-
-  /*
-   * NO TIMER
-   */
-
-  if (
-    !result.active
+    result.active !==
+    true
   ) {
 
     currentTimer =
@@ -812,52 +1605,24 @@ function processTimerState(
     stopDisplayClock();
 
 
-    updateIdleState();
-
-  }
-
-}
+    timerElement.textContent =
+      "00:00";
 
 
-/* =====================================================
-   UPDATE DISPLAY
-   ===================================================== */
-
-function updateDisplay(
-  state
-) {
-
-  currentTimer =
-    state;
+    labelElement.textContent =
+      "No active timer";
 
 
-  currentLabel =
-    state.label ||
-    currentLabel ||
-    'Focus Block';
+    statusElement.textContent =
+      "Ready";
 
 
-  document.getElementById(
-    'timerLabel'
-  ).textContent =
-    currentLabel;
-
-
-  /*
-   * Active timer
-   */
-
-  if (
-    state.active &&
-    !state.paused &&
-    state.ends_at
-  ) {
-
-    updateDisplayFromEndTime();
-
-    setStatus(
-      '⏱ Timer running'
+    updateButtons(
+      false,
+      false,
+      false
     );
+
 
     return;
 
@@ -865,54 +1630,117 @@ function updateDisplay(
 
 
   /*
-   * Paused timer
+   * Active or paused timer.
+   */
+
+  currentTimer =
+    result;
+
+
+  lastKnownEndsAt =
+    result.ends_at ||
+    null;
+
+
+  labelElement.textContent =
+    result.label ||
+    "Focus Block";
+
+
+  /*
+   * Paused timer.
    */
 
   if (
-    state.paused
+    result.paused ===
+    true
   ) {
 
-    renderTime(
-      Number(
-        state.remaining_seconds ||
-        0
-      )
+    stopDisplayClock();
+
+
+    timerElement.textContent =
+      formatTime(
+        result.remaining_seconds
+      );
+
+
+    statusElement.textContent =
+      "Paused";
+
+
+    updateButtons(
+      false,
+      true,
+      true
     );
 
 
-    setStatus(
-      '⏸ Timer paused'
-    );
+    document.title =
+      "⏸ " +
+      formatTime(
+        result.remaining_seconds
+      ) +
+      " • Focus Timer";
+
+
+    return;
 
   }
+
+
+  /*
+   * Active timer.
+   */
+
+  statusElement.textContent =
+    "Running";
+
+
+  updateButtons(
+    true,
+    false,
+    true
+  );
+
+
+  startDisplayClock();
 
 }
 
 
-/* =====================================================
-   LOCAL DISPLAY CLOCK
-   ===================================================== */
+/* =========================================================
+   DISPLAY CLOCK
+   ========================================================= */
+
 
 function startDisplayClock() {
 
-  stopDisplayClock();
+  if (
+    displayInterval
+  ) {
+
+    return;
+
+  }
 
 
-  updateDisplayFromEndTime();
+  updateDisplay();
 
 
   displayInterval =
     setInterval(
-      updateDisplayFromEndTime,
+      updateDisplay,
       1000
     );
 
 }
 
 
-/* =====================================================
-   STOP LOCAL DISPLAY CLOCK
-   ===================================================== */
+/* =========================================================
+   STOP DISPLAY CLOCK
+   ========================================================= */
+
 
 function stopDisplayClock() {
 
@@ -924,7 +1752,6 @@ function stopDisplayClock() {
       displayInterval
     );
 
-
     displayInterval =
       null;
 
@@ -933,11 +1760,12 @@ function stopDisplayClock() {
 }
 
 
-/* =====================================================
-   UPDATE DISPLAY FROM END TIME
-   ===================================================== */
+/* =========================================================
+   UPDATE DISPLAY
+   ========================================================= */
 
-function updateDisplayFromEndTime() {
+
+function updateDisplay() {
 
   if (
     !currentTimer ||
@@ -964,99 +1792,148 @@ function updateDisplayFromEndTime() {
     );
 
 
-  renderTime(
-    remaining
-  );
+  timerElement.textContent =
+    formatTime(
+      remaining
+    );
 
 
-  /*
-   * The local display has reached zero.
-   * Ask the backend for confirmation.
-   */
+  document.title =
+    formatTime(
+      remaining
+    ) +
+    " • " +
+    (
+      currentTimer.label ||
+      "Focus Timer"
+    );
+
 
   if (
-    remaining <= 0 &&
-    !completionHandled
+    remaining <= 0
   ) {
 
-    checkTimer();
+    /*
+     * Don't immediately play the sound here.
+     *
+     * The backend status check determines completion.
+     */
+
+    timerElement.textContent =
+      "00:00";
 
   }
 
 }
 
 
-/* =====================================================
-   RENDER TIME
-   ===================================================== */
+/* =========================================================
+   FORMAT TIME
+   ========================================================= */
 
-function renderTime(
-  seconds
+
+function formatTime(
+  totalSeconds
 ) {
 
-  seconds =
+  totalSeconds =
     Math.max(
       0,
-      Math.ceil(
-        seconds
+      Math.floor(
+        Number(
+          totalSeconds
+        ) || 0
       )
+    );
+
+
+  const hours =
+    Math.floor(
+      totalSeconds / 3600
     );
 
 
   const minutes =
     Math.floor(
-      seconds / 60
+      (
+        totalSeconds % 3600
+      ) / 60
     );
 
 
-  const remainingSeconds =
-    seconds % 60;
+  const seconds =
+    totalSeconds % 60;
 
 
-  const formatted =
-    String(
-      minutes
-    ).padStart(
-      2,
-      '0'
-    ) +
-    ':' +
-    String(
-      remainingSeconds
-    ).padStart(
-      2,
-      '0'
+  if (
+    hours > 0
+  ) {
+
+    return (
+      String(hours)
+        .padStart(2, "0") +
+      ":" +
+      String(minutes)
+        .padStart(2, "0") +
+      ":" +
+      String(seconds)
+        .padStart(2, "0")
     );
 
-
-  document.getElementById(
-    'timer'
-  ).textContent =
-    formatted;
+  }
 
 
-  document.title =
-    formatted +
-    ' — Ade Focus Timer';
+  return (
+    String(minutes)
+      .padStart(2, "0") +
+    ":" +
+    String(seconds)
+      .padStart(2, "0")
+  );
 
 }
 
 
-/* =====================================================
+/* =========================================================
+   BUTTON STATES
+   ========================================================= */
+
+
+function updateButtons(
+  canPause,
+  canResume,
+  canStop
+) {
+
+  pauseButton.disabled =
+    !canPause;
+
+
+  resumeButton.disabled =
+    !canResume;
+
+
+  stopButton.disabled =
+    !canStop;
+
+}
+
+
+/* =========================================================
    BACKEND POLLING
-   ===================================================== */
+   ========================================================= */
+
+
+/*
+ * IMPORTANT:
+ *
+ * This polling deliberately remains active even when there
+ * is no timer. That means the page can detect a timer that
+ * was started remotely by the GPT.
+ */
+
 
 function ensureBackendPolling() {
-
-  /*
-   * IMPORTANT:
-   *
-   * Polling continues even when there
-   * is currently NO active timer.
-   *
-   * This allows the Netlify page to
-   * detect timers started from GPT.
-   */
 
   if (
     backendPolling
@@ -1070,52 +1947,25 @@ function ensureBackendPolling() {
   backendPolling =
     setInterval(
       checkTimer,
-      5000
+      POLL_INTERVAL
     );
 
 }
 
 
-/* =====================================================
-   STOP BACKEND POLLING
-   ===================================================== */
-
-function stopBackendPolling() {
-
-  /*
-   * We intentionally do not stop
-   * polling when the timer is idle.
-   *
-   * The page needs to remain aware
-   * of timers started externally.
-   */
-
-  return;
-
-}
-
-
-/* =====================================================
+/* =========================================================
    CHECK TIMER
-   ===================================================== */
+   ========================================================= */
+
 
 async function checkTimer() {
 
   try {
 
     const result =
-      await apiRequest({
-        action: 'status'
-      });
-
-
-    if (
-      !result.ok
-    ) {
-
-      return;
-
-    }
+      await callApi(
+        "status"
+      );
 
 
     processTimerState(
@@ -1124,272 +1974,14 @@ async function checkTimer() {
 
   }
 
-
   catch (error) {
-
-    console.error(
-      'Polling error:',
-      error
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   IDLE STATE
-   ===================================================== */
-
-function updateIdleState() {
-
-  document.getElementById(
-    'timerLabel'
-  ).textContent =
-    'No active timer';
-
-
-  setStatus(
-    'Ready'
-  );
-
-
-  document.title =
-    'Ade Focus Timer';
-
-
-  /*
-   * Keep the timer display at zero
-   * when an external timer has just
-   * completed.
-   */
-
-  if (
-    !currentTimer
-  ) {
-
-    document.getElementById(
-      'timer'
-    ).textContent =
-      '25:00';
-
-  }
-
-}
-
-
-/* =====================================================
-   TIMER COMPLETION
-   ===================================================== */
-
-function finishTimer(
-  notify = true,
-  label = 'Focus Block'
-) {
-
-  stopDisplayClock();
-
-
-  currentTimer =
-    null;
-
-
-  renderTime(
-    0
-  );
-
-
-  document.getElementById(
-    'timerLabel'
-  ).textContent =
-    label;
-
-
-  setStatus(
-    '🎉 Timer complete!'
-  );
-
-
-  /*
-   * Gentle completion chime.
-   */
-
-  beep();
-
-
-  /*
-   * Browser notification.
-   */
-
-  if (
-    notify
-  ) {
-
-    showNotification(
-      label
-    );
-
-  }
-
-
-  /*
-   * Clear completed timer
-   * from the backend.
-   */
-
-  apiRequest({
-    action: 'stop'
-  }).catch(
-    error =>
-      console.error(
-        'Unable to clear completed timer:',
-        error
-      )
-  );
-
-}
-
-
-/* =====================================================
-   GENTLE COMPLETION CHIME
-   ===================================================== */
-
-function beep() {
-
-  try {
-
-    const AudioContext =
-      window.AudioContext ||
-      window.webkitAudioContext;
-
-
-    if (
-      !AudioContext
-    ) {
-
-      return;
-
-    }
-
-
-    const audio =
-      new AudioContext();
-
 
     /*
-     * C5 → E5 → G5
-     *
-     * Gentle ascending
-     * three-note chime.
+     * Do not interrupt the timer if a single poll fails.
      */
 
-    const notes = [
-
-      {
-        frequency: 523.25,
-        start: 0,
-        duration: 0.35
-      },
-
-      {
-        frequency: 659.25,
-        start: 0.22,
-        duration: 0.35
-      },
-
-      {
-        frequency: 783.99,
-        start: 0.44,
-        duration: 0.65
-      }
-
-    ];
-
-
-    notes.forEach(
-      note => {
-
-        const oscillator =
-          audio.createOscillator();
-
-
-        const gain =
-          audio.createGain();
-
-
-        oscillator.type =
-          'sine';
-
-
-        oscillator.frequency.value =
-          note.frequency;
-
-
-        oscillator.connect(
-          gain
-        );
-
-
-        gain.connect(
-          audio.destination
-        );
-
-
-        const startTime =
-          audio.currentTime +
-          note.start;
-
-
-        gain.gain.setValueAtTime(
-          0,
-          startTime
-        );
-
-
-        gain.gain.linearRampToValueAtTime(
-          0.12,
-          startTime +
-          0.04
-        );
-
-
-        gain.gain.exponentialRampToValueAtTime(
-          0.001,
-          startTime +
-          note.duration
-        );
-
-
-        oscillator.start(
-          startTime
-        );
-
-
-        oscillator.stop(
-          startTime +
-          note.duration
-        );
-
-      }
-    );
-
-
-    setTimeout(
-      () => {
-
-        audio.close();
-
-      },
-      1600
-    );
-
-  }
-
-
-  catch (error) {
-
-    console.error(
-      'Unable to play completion chime:',
+    console.warn(
+      "Timer polling failed:",
       error
     );
 
@@ -1398,181 +1990,108 @@ function beep() {
 }
 
 
-/* =====================================================
-   ENABLE NOTIFICATIONS
-   ===================================================== */
-
-async function enableNotifications() {
-
-  if (
-    !('Notification' in window)
-  ) {
-
-    alert(
-      'Browser notifications are not supported on this device.'
-    );
-
-    return;
-
-  }
+/* =========================================================
+   PAGE VISIBILITY
+   ========================================================= */
 
 
-  try {
-
-    const permission =
-      await Notification.requestPermission();
-
-
-    if (
-      permission === 'granted'
-    ) {
-
-      new Notification(
-        'Ade Focus Timer',
-        {
-          body:
-            'Notifications are now enabled.'
-        }
-      );
+/*
+ * When the user returns to the timer page, immediately
+ * synchronise rather than waiting for the next poll.
+ */
 
 
-      setStatus(
-        '🔔 Notifications enabled.'
-      );
-
-    }
-
-    else {
-
-      setStatus(
-        '🔕 Notifications are blocked.'
-      );
-
-    }
-
-  }
-
-
-  catch (error) {
-
-    console.error(
-      error
-    );
-
-
-    setStatus(
-      'Unable to enable notifications.'
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   SHOW COMPLETION NOTIFICATION
-   ===================================================== */
-
-function showNotification(
-  label
-) {
-
-  if (
-    !('Notification' in window)
-  ) {
-
-    return;
-
-  }
-
-
-  if (
-    Notification.permission !==
-    'granted'
-  ) {
-
-    return;
-
-  }
-
-
-  try {
-
-    new Notification(
-      '🎉 Focus Block Complete',
-      {
-
-        body:
-          label +
-          ' has finished. Time to review your progress or take a short break.',
-
-        tag:
-          'ade-focus-timer'
-
-      }
-    );
-
-  }
-
-
-  catch (error) {
-
-    console.error(
-      'Notification error:',
-      error
-    );
-
-  }
-
-}
-
-
-/* =====================================================
-   STATUS HELPER
-   ===================================================== */
-
-function setStatus(
-  message
-) {
-
-  document.getElementById(
-    'status'
-  ).textContent =
-    message;
-
-}
-
-
-/* =====================================================
-   INITIAL LOAD
-   ===================================================== */
-
-window.addEventListener(
-  'load',
+document.addEventListener(
+  "visibilitychange",
   () => {
 
-    /*
-     * Start continuous backend polling
-     * immediately.
-     *
-     * This is what allows the page to
-     * detect timers started by GPT.
-     */
+    if (
+      !document.hidden
+    ) {
 
-    ensureBackendPolling();
+      getStatus();
 
-
-    /*
-     * Check immediately rather than
-     * waiting five seconds.
-     */
-
-    getStatus();
+    }
 
   }
 );
 
+
+/* =========================================================
+   PAGE LOAD
+   ========================================================= */
+
+
+/*
+ * Start remote polling immediately.
+ *
+ * This is what allows the GPT to start a timer while the
+ * user is working in another browser tab.
+ */
+
+
+window.addEventListener(
+  "load",
+  () => {
+
+    ensureBackendPolling();
+
+    getStatus();
+
+
+    /*
+     * Reflect existing notification permission.
+     */
+
+    if (
+      "Notification" in window
+    ) {
+
+      updateNotificationStatus(
+        Notification.permission
+      );
+
+    }
+
+  }
+);
+
+
+/* =========================================================
+   OPTIONAL AUDIO UNLOCK
+   ========================================================= */
+
+
+/*
+ * Any click on the page is an opportunity to unlock audio.
+ *
+ * This is useful because browsers restrict autoplay audio.
+ */
+
+
+document.addEventListener(
+  "click",
+  () => {
+
+    if (
+      !audioUnlocked
+    ) {
+
+      initialiseAudio();
+
+    }
+
+  },
+  {
+    once: false,
+    passive: true
+  }
+);
+
+
 </script>
 
+
 </body>
+
 </html>
