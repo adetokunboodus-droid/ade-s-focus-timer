@@ -12,24 +12,18 @@
 
   <title>Ade Focus Timer</title>
 
-
   <style>
 
     * {
       box-sizing: border-box;
     }
 
-
     body {
-
       margin: 0;
-
       min-height: 100vh;
 
       display: flex;
-
       align-items: center;
-
       justify-content: center;
 
       font-family:
@@ -41,237 +35,134 @@
         Arial,
         sans-serif;
 
-      background:
-        #f4f5f7;
-
-      color:
-        #111827;
-
+      background: #f4f5f7;
+      color: #111827;
     }
-
 
     .container {
-
       width: 100%;
-
       max-width: 520px;
-
       padding: 24px;
-
     }
 
-
     .card {
-
       background: white;
-
       border-radius: 20px;
-
       padding: 32px;
 
       box-shadow:
         0 10px 35px rgba(0,0,0,0.08);
 
       text-align: center;
-
     }
-
 
     h1 {
-
-      margin:
-        0 0 8px;
-
+      margin: 0 0 8px;
       font-size: 28px;
-
       font-weight: 700;
-
     }
-
 
     .subtitle {
-
-      margin:
-        0 0 28px;
-
-      color:
-        #6b7280;
-
+      margin: 0 0 28px;
+      color: #6b7280;
       font-size: 14px;
-
     }
 
-
     .timer {
-
       font-size: 76px;
-
       font-weight: 700;
-
       letter-spacing: -3px;
-
-      margin:
-        20px 0;
+      margin: 20px 0;
 
       font-variant-numeric:
         tabular-nums;
-
     }
-
 
     .label {
-
       font-size: 17px;
-
       font-weight: 600;
-
       min-height: 24px;
-
       margin-bottom: 8px;
-
     }
-
 
     .status {
-
       font-size: 14px;
-
-      color:
-        #6b7280;
-
+      color: #6b7280;
       min-height: 22px;
-
       margin-bottom: 22px;
-
     }
-
 
     .controls {
-
       display: flex;
-
       flex-wrap: wrap;
-
       gap: 10px;
-
       justify-content: center;
-
       margin-top: 20px;
-
     }
 
-
     button {
-
       border: none;
-
       border-radius: 10px;
 
       padding:
         12px 18px;
 
       font-size: 15px;
-
       font-weight: 600;
 
       cursor: pointer;
 
-      background:
-        #111827;
-
+      background: #111827;
       color: white;
 
       transition:
         transform 0.1s ease,
         opacity 0.1s ease;
-
     }
-
 
     button:hover {
-
       opacity: 0.9;
-
     }
-
 
     button:active {
-
-      transform:
-        scale(0.97);
-
+      transform: scale(0.97);
     }
-
 
     button:disabled {
-
-      opacity:
-        0.45;
-
-      cursor:
-        not-allowed;
-
+      opacity: 0.45;
+      cursor: not-allowed;
     }
-
 
     .secondary {
-
-      background:
-        #e5e7eb;
-
-      color:
-        #111827;
-
+      background: #e5e7eb;
+      color: #111827;
     }
-
 
     .danger {
-
-      background:
-        #b91c1c;
-
+      background: #b91c1c;
     }
-
 
     .sound-button {
-
       margin-top: 18px;
-
       width: 100%;
-
-      background:
-        #374151;
-
+      background: #374151;
     }
-
 
     .notification-status {
-
       margin-top: 10px;
-
       font-size: 13px;
-
-      color:
-        #6b7280;
-
+      color: #6b7280;
+      min-height: 20px;
     }
-
 
     .duration-row {
-
       display: flex;
-
       gap: 10px;
-
       margin-top: 20px;
-
     }
 
-
     input {
-
       flex: 1;
-
       min-width: 0;
 
       border:
@@ -279,50 +170,35 @@
 
       border-radius: 10px;
 
-      padding:
-        12px;
+      padding: 12px;
 
       font-size: 15px;
 
       text-align: center;
-
     }
-
 
     .start-manual {
-
-      background:
-        #2563eb;
-
+      background: #2563eb;
     }
 
-
     .footer {
-
       margin-top: 24px;
 
       font-size: 12px;
 
-      color:
-        #9ca3af;
+      color: #9ca3af;
 
       line-height: 1.5;
-
     }
-
 
     @media (max-width: 480px) {
 
       .card {
-
         padding: 24px;
-
       }
 
       .timer {
-
         font-size: 60px;
-
       }
 
     }
@@ -339,11 +215,9 @@
 
   <div class="card">
 
-
     <h1>
       Ade Focus Timer
     </h1>
-
 
     <p class="subtitle">
       Shared with your GPT focus assistant
@@ -412,11 +286,10 @@
         id="durationInput"
         type="number"
         min="1"
-        max="86400"
+        max="1440"
         value="25"
         placeholder="Minutes"
       >
-
 
       <button
         class="start-manual"
@@ -448,11 +321,10 @@
     <div class="footer">
 
       Keep this page open in a browser tab.
-      The timer state is controlled by the GPT and
-      synchronised through the timer server.
+      The timer synchronises with the GPT through the
+      timer server.
 
     </div>
-
 
   </div>
 
@@ -473,13 +345,24 @@ const API_URL =
 
 
 /*
- * Poll the Apps Script backend every 5 seconds.
+ * Faster remote synchronisation:
  *
- * The backend remains the source of truth.
+ * Active page:
+ *     every 1 second
+ *
+ * Background page:
+ *     every 2 seconds
+ *
+ * The browser may still throttle background JavaScript.
  */
 
-const POLL_INTERVAL =
-  5000;
+
+const ACTIVE_POLL_INTERVAL =
+  1000;
+
+
+const BACKGROUND_POLL_INTERVAL =
+  2000;
 
 
 /* =========================================================
@@ -514,6 +397,17 @@ let lastCompletedTimer =
 let lastKnownEndsAt =
   null;
 
+
+let lastKnownTimerStartedAt =
+  null;
+
+
+/*
+ * Prevent overlapping API requests.
+ */
+
+let pollInProgress =
+  false;
 
 
 /* =========================================================
@@ -570,15 +464,15 @@ const alertButton =
 
 
 /* =========================================================
-   AUDIO INITIALISATION
+   AUDIO
    ========================================================= */
 
 
 /*
- * Create the AudioContext after a user interaction.
+ * Initialise Web Audio after a user interaction.
  *
  * This is important because Chrome/Safari can block
- * audio that starts without a user gesture.
+ * autoplay audio.
  */
 
 
@@ -586,17 +480,19 @@ function initialiseAudio() {
 
   try {
 
+    const AudioContextClass =
+      window.AudioContext ||
+      window.webkitAudioContext;
+
+
+    if (!AudioContextClass) {
+
+      return false;
+
+    }
+
+
     if (!audioContext) {
-
-      const AudioContextClass =
-        window.AudioContext ||
-        window.webkitAudioContext;
-
-      if (!AudioContextClass) {
-
-        return false;
-
-      }
 
       audioContext =
         new AudioContextClass();
@@ -617,6 +513,7 @@ function initialiseAudio() {
     audioUnlocked =
       true;
 
+
     return true;
 
   }
@@ -636,23 +533,19 @@ function initialiseAudio() {
 
 
 /* =========================================================
-   LOUD COMPLETION ALERT
+   SINGLE ALARM BURST
    ========================================================= */
 
 
-/*
- * Plays one attention burst.
- *
- * Several tones are layered so the sound is much more
- * noticeable than the previous single gentle beep.
- */
+function playAlarmBurst() {
 
+  if (
+    !audioContext
+  ) {
 
-function playAlertBurst() {
-
-  if (!audioContext) {
-
-    if (!initialiseAudio()) {
+    if (
+      !initialiseAudio()
+    ) {
 
       return;
 
@@ -667,6 +560,14 @@ function playAlertBurst() {
       audioContext.currentTime;
 
 
+    /*
+     * Master volume.
+     *
+     * This is intentionally substantially stronger
+     * than the previous gentle chime.
+     */
+
+
     const master =
       audioContext.createGain();
 
@@ -678,14 +579,14 @@ function playAlertBurst() {
 
 
     master.gain.exponentialRampToValueAtTime(
-      0.8,
-      now + 0.03
+      0.95,
+      now + 0.025
     );
 
 
     master.gain.exponentialRampToValueAtTime(
       0.0001,
-      now + 0.55
+      now + 0.65
     );
 
 
@@ -695,101 +596,101 @@ function playAlertBurst() {
 
 
     /*
-     * First tone
+     * Tone 1.
      */
 
-    const oscillator1 =
+    const tone1 =
       audioContext.createOscillator();
 
 
-    oscillator1.type =
-      "sine";
+    tone1.type =
+      "square";
 
 
-    oscillator1.frequency.setValueAtTime(
+    tone1.frequency.setValueAtTime(
       880,
       now
     );
 
 
-    oscillator1.connect(
+    tone1.connect(
       master
     );
 
 
-    oscillator1.start(
+    tone1.start(
       now
     );
 
 
-    oscillator1.stop(
-      now + 0.22
+    tone1.stop(
+      now + 0.20
     );
 
 
     /*
-     * Second tone
+     * Tone 2.
      */
 
-    const oscillator2 =
+    const tone2 =
       audioContext.createOscillator();
 
 
-    oscillator2.type =
-      "sine";
+    tone2.type =
+      "square";
 
 
-    oscillator2.frequency.setValueAtTime(
+    tone2.frequency.setValueAtTime(
       1174.66,
       now + 0.18
     );
 
 
-    oscillator2.connect(
+    tone2.connect(
       master
     );
 
 
-    oscillator2.start(
+    tone2.start(
       now + 0.18
     );
 
 
-    oscillator2.stop(
-      now + 0.42
+    tone2.stop(
+      now + 0.38
     );
 
 
     /*
-     * Third higher tone.
+     * Tone 3.
      */
 
-    const oscillator3 =
+    const tone3 =
       audioContext.createOscillator();
 
 
-    oscillator3.type =
-      "triangle";
+    tone3.type =
+      "square";
 
 
-    oscillator3.frequency.setValueAtTime(
-      1396.91,
+    tone3.frequency.setValueAtTime(
+      880,
       now + 0.36
     );
 
 
-    oscillator3.connect(
+    tone3.connect(
       master
     );
 
 
-    oscillator3.start(
+    tone3.start(
       now + 0.36
     );
 
 
-    oscillator3.stop(
-      now + 0.55
+    tone3.stop(
+      now + 0.58
     );
 
 
@@ -798,7 +699,7 @@ function playAlertBurst() {
   catch (error) {
 
     console.error(
-      "Could not play alert:",
+      "Alarm playback failed:",
       error
     );
 
@@ -807,10 +708,18 @@ function playAlertBurst() {
 }
 
 
+/* =========================================================
+   COMPLETION ALARM
+   ========================================================= */
+
+
 /*
- * Three separate alert bursts.
+ * Five alarm bursts.
  *
- * This makes the completion considerably harder to miss.
+ * Approximate duration: 4.5 seconds.
+ *
+ * The repetition is deliberate: the objective is to get
+ * Ade's attention rather than provide a gentle chime.
  */
 
 
@@ -819,38 +728,30 @@ function playCompletionSound() {
   initialiseAudio();
 
 
-  /*
-   * First burst immediately.
-   */
+  playAlarmBurst();
 
-  playAlertBurst();
-
-
-  /*
-   * Second burst.
-   */
 
   setTimeout(
-    () => {
-
-      playAlertBurst();
-
-    },
-    800
+    () => playAlarmBurst(),
+    900
   );
 
 
-  /*
-   * Third burst.
-   */
+  setTimeout(
+    () => playAlarmBurst(),
+    1800
+  );
+
 
   setTimeout(
-    () => {
+    () => playAlarmBurst(),
+    2700
+  );
 
-      playAlertBurst();
 
-    },
-    1600
+  setTimeout(
+    () => playAlarmBurst(),
+    3600
   );
 
 }
@@ -864,14 +765,15 @@ function playCompletionSound() {
 async function enableAlerts() {
 
   /*
-   * Unlock audio through a direct user interaction.
+   * This button is a direct user gesture.
+   * Use it to unlock Web Audio.
    */
 
   initialiseAudio();
 
 
   /*
-   * Request browser notification permission.
+   * Request notification permission.
    */
 
   if (
@@ -905,27 +807,29 @@ async function enableAlerts() {
 
   }
 
-  else {
-
-    notificationStatus.textContent =
-      "Browser notifications are not supported.";
-
-  }
-
 
   /*
-   * Give the user a small confirmation sound.
+   * Play a confirmation sound so the user knows
+   * the audio system is actually active.
    */
 
-  playAlertBurst();
+  playAlarmBurst();
 
 
   alertButton.textContent =
-    "🔔 Alerts Enabled";
+    "🔔 Sound & Notifications Enabled";
 
 
-  alertButton.disabled =
-    false;
+  if (
+    "Notification" in window &&
+    Notification.permission ===
+      "granted"
+  ) {
+
+    notificationStatus.textContent =
+      "🔔 Ready — completion alerts are enabled";
+
+  }
 
 }
 
@@ -945,7 +849,7 @@ function updateNotificationStatus(
   ) {
 
     notificationStatus.textContent =
-      "🔔 Notifications enabled • loud completion alert enabled";
+      "🔔 Notifications enabled • completion alarm enabled";
 
   }
 
@@ -955,7 +859,7 @@ function updateNotificationStatus(
   ) {
 
     notificationStatus.textContent =
-      "🔕 Notifications are blocked in browser settings";
+      "🔕 Browser notifications are blocked";
 
   }
 
@@ -970,7 +874,7 @@ function updateNotificationStatus(
 
 
 /* =========================================================
-   BROWSER NOTIFICATION
+   COMPLETION NOTIFICATION
    ========================================================= */
 
 
@@ -1008,9 +912,6 @@ function showCompletionNotification(
               ? label +
                 " is complete."
               : "Your focus block is complete.",
-
-          icon:
-            "https://mellow-blancmange-e3aeb9.netlify.app/favicon.ico",
 
           tag:
             "ade-focus-timer-complete",
@@ -1058,17 +959,22 @@ function handleTimerCompleted(
 ) {
 
   /*
-   * Prevent duplicate notifications if the same completed
-   * timer is returned by more than one poll.
+   * Construct a unique completion key.
    */
 
   const completionKey =
     String(
       lastKnownEndsAt ||
+      lastKnownTimerStartedAt ||
       label ||
       Date.now()
     );
 
+
+  /*
+   * Prevent duplicate alerts caused by multiple
+   * status polls seeing the same completed timer.
+   */
 
   if (
     lastCompletedTimer ===
@@ -1112,7 +1018,7 @@ function handleTimerCompleted(
 
 
   /*
-   * Browser notification.
+   * Native browser notification.
    */
 
   showCompletionNotification(
@@ -1121,22 +1027,22 @@ function handleTimerCompleted(
 
 
   /*
-   * Loud three-burst sound.
+   * Strong web-audio alarm.
    */
 
   playCompletionSound();
 
 
   /*
-   * Change browser title.
+   * Make the browser tab title conspicuous.
    */
 
   document.title =
-    "🔔 Focus block complete";
+    "🔔 FOCUS BLOCK COMPLETE";
 
 
   /*
-   * Return title to normal after 10 seconds.
+   * Restore normal title after 15 seconds.
    */
 
   setTimeout(
@@ -1146,21 +1052,15 @@ function handleTimerCompleted(
         "Ade Focus Timer";
 
     },
-    10000
+    15000
   );
 
 }
 
 
 /* =========================================================
-   API JSONP
+   JSONP API
    ========================================================= */
-
-
-/*
- * Apps Script is queried using JSONP because ordinary
- * browser fetch requests can be blocked by CORS.
- */
 
 
 function callApi(
@@ -1217,10 +1117,8 @@ function callApi(
         key => {
 
           if (
-            params[key] !==
-            undefined &&
-            params[key] !==
-            null
+            params[key] !== undefined &&
+            params[key] !== null
           ) {
 
             query.set(
@@ -1234,16 +1132,8 @@ function callApi(
       );
 
 
-      window[callbackName] =
-        function(data) {
-
-          cleanup();
-
-          resolve(
-            data
-          );
-
-        };
+      let completed =
+        false;
 
 
       function cleanup() {
@@ -1266,10 +1156,50 @@ function callApi(
       }
 
 
+      window[callbackName] =
+        function(data) {
+
+          if (
+            completed
+          ) {
+
+            return;
+
+          }
+
+
+          completed =
+            true;
+
+
+          cleanup();
+
+
+          resolve(
+            data
+          );
+
+        };
+
+
       script.onerror =
         function() {
 
+          if (
+            completed
+          ) {
+
+            return;
+
+          }
+
+
+          completed =
+            true;
+
+
           cleanup();
+
 
           reject(
             new Error(
@@ -1297,7 +1227,7 @@ function callApi(
 
 
 /* =========================================================
-   START TIMER
+   START
    ========================================================= */
 
 
@@ -1305,11 +1235,6 @@ async function startTimer(
   durationSeconds,
   label
 ) {
-
-  /*
-   * If the timer page itself is used to start a timer,
-   * unlock audio.
-   */
 
   initialiseAudio();
 
@@ -1341,6 +1266,7 @@ async function startTimer(
     console.error(
       error
     );
+
 
     statusElement.textContent =
       "Unable to start timer";
@@ -1469,10 +1395,9 @@ async function stopTimer() {
 
   try {
 
-    const result =
-      await callApi(
-        "stop"
-      );
+    await callApi(
+      "stop"
+    );
 
 
     currentTimer =
@@ -1480,6 +1405,10 @@ async function stopTimer() {
 
 
     lastKnownEndsAt =
+      null;
+
+
+    lastKnownTimerStartedAt =
       null;
 
 
@@ -1508,7 +1437,6 @@ async function stopTimer() {
     document.title =
       "Ade Focus Timer";
 
-
   }
 
   catch (error) {
@@ -1523,11 +1451,24 @@ async function stopTimer() {
 
 
 /* =========================================================
-   STATUS
+   GET STATUS
    ========================================================= */
 
 
 async function getStatus() {
+
+  if (
+    pollInProgress
+  ) {
+
+    return;
+
+  }
+
+
+  pollInProgress =
+    true;
+
 
   try {
 
@@ -1545,10 +1486,17 @@ async function getStatus() {
 
   catch (error) {
 
-    console.error(
-      "Status check failed:",
+    console.warn(
+      "Timer status check failed:",
       error
     );
+
+  }
+
+  finally {
+
+    pollInProgress =
+      false;
 
   }
 
@@ -1572,7 +1520,7 @@ function processTimerState(
 
 
   /*
-   * Timer completed.
+   * Completed timer.
    */
 
   if (
@@ -1630,7 +1578,7 @@ function processTimerState(
 
 
   /*
-   * Active or paused timer.
+   * Active/paused timer.
    */
 
   currentTimer =
@@ -1642,13 +1590,18 @@ function processTimerState(
     null;
 
 
+  lastKnownTimerStartedAt =
+    result.started_at ||
+    null;
+
+
   labelElement.textContent =
     result.label ||
     "Focus Block";
 
 
   /*
-   * Paused timer.
+   * PAUSED
    */
 
   if (
@@ -1690,7 +1643,7 @@ function processTimerState(
 
 
   /*
-   * Active timer.
+   * RUNNING
    */
 
   statusElement.textContent =
@@ -1752,6 +1705,7 @@ function stopDisplayClock() {
       displayInterval
     );
 
+
     displayInterval =
       null;
 
@@ -1809,15 +1763,15 @@ function updateDisplay() {
     );
 
 
+  /*
+   * We intentionally do NOT trigger completion here.
+   *
+   * Apps Script remains the source of truth.
+   */
+
   if (
     remaining <= 0
   ) {
-
-    /*
-     * Don't immediately play the sound here.
-     *
-     * The backend status check determines completion.
-     */
 
     timerElement.textContent =
       "00:00";
@@ -1920,35 +1874,56 @@ function updateButtons(
 
 
 /* =========================================================
-   BACKEND POLLING
+   REMOTE POLLING
    ========================================================= */
 
 
 /*
- * IMPORTANT:
- *
- * This polling deliberately remains active even when there
- * is no timer. That means the page can detect a timer that
- * was started remotely by the GPT.
+ * Restart the polling interval whenever the page changes
+ * between foreground and background.
  */
 
 
-function ensureBackendPolling() {
+function startBackendPolling() {
 
-  if (
-    backendPolling
-  ) {
+  stopBackendPolling();
 
-    return;
 
-  }
+  const interval =
+    document.hidden
+      ? BACKGROUND_POLL_INTERVAL
+      : ACTIVE_POLL_INTERVAL;
 
 
   backendPolling =
     setInterval(
       checkTimer,
-      POLL_INTERVAL
+      interval
     );
+
+}
+
+
+/* =========================================================
+   STOP POLLING
+   ========================================================= */
+
+
+function stopBackendPolling() {
+
+  if (
+    backendPolling
+  ) {
+
+    clearInterval(
+      backendPolling
+    );
+
+
+    backendPolling =
+      null;
+
+  }
 
 }
 
@@ -1960,44 +1935,26 @@ function ensureBackendPolling() {
 
 async function checkTimer() {
 
-  try {
-
-    const result =
-      await callApi(
-        "status"
-      );
-
-
-    processTimerState(
-      result
-    );
-
-  }
-
-  catch (error) {
-
-    /*
-     * Do not interrupt the timer if a single poll fails.
-     */
-
-    console.warn(
-      "Timer polling failed:",
-      error
-    );
-
-  }
+  await getStatus();
 
 }
 
 
 /* =========================================================
-   PAGE VISIBILITY
+   VISIBILITY
    ========================================================= */
 
 
 /*
- * When the user returns to the timer page, immediately
- * synchronise rather than waiting for the next poll.
+ * When the page becomes visible:
+ *
+ * 1. Check immediately.
+ * 2. Switch to 1-second polling.
+ *
+ * When it becomes hidden:
+ *
+ * 1. Check immediately.
+ * 2. Switch to 2-second polling.
  */
 
 
@@ -2005,13 +1962,26 @@ document.addEventListener(
   "visibilitychange",
   () => {
 
-    if (
-      !document.hidden
-    ) {
+    getStatus();
 
-      getStatus();
+    startBackendPolling();
 
-    }
+  }
+);
+
+
+/* =========================================================
+   WINDOW FOCUS
+   ========================================================= */
+
+
+window.addEventListener(
+  "focus",
+  () => {
+
+    getStatus();
+
+    startBackendPolling();
 
   }
 );
@@ -2022,25 +1992,26 @@ document.addEventListener(
    ========================================================= */
 
 
-/*
- * Start remote polling immediately.
- *
- * This is what allows the GPT to start a timer while the
- * user is working in another browser tab.
- */
-
-
 window.addEventListener(
   "load",
   () => {
 
-    ensureBackendPolling();
+    /*
+     * Start remote synchronisation immediately.
+     */
+
+    startBackendPolling();
+
+
+    /*
+     * Get the current server state immediately.
+     */
 
     getStatus();
 
 
     /*
-     * Reflect existing notification permission.
+     * Show current notification permission.
      */
 
     if (
@@ -2058,14 +2029,13 @@ window.addEventListener(
 
 
 /* =========================================================
-   OPTIONAL AUDIO UNLOCK
+   AUDIO UNLOCK ON USER INTERACTION
    ========================================================= */
 
 
 /*
- * Any click on the page is an opportunity to unlock audio.
- *
- * This is useful because browsers restrict autoplay audio.
+ * Any user click is an opportunity to initialise the
+ * Web Audio system.
  */
 
 
@@ -2083,7 +2053,6 @@ document.addEventListener(
 
   },
   {
-    once: false,
     passive: true
   }
 );
